@@ -5,14 +5,14 @@ import '../components/pet_catalog.dart';
 import '../components/categories.dart';
 import '../components/location_widget.dart';
 
-class HomePage extends StatefulWidget {
-  const HomePage({super.key});
+class TestePage extends StatefulWidget {
+  const TestePage({super.key});
 
   @override
-  State<HomePage> createState() => _HomePageState();
+  State<TestePage> createState() => _TestePageState();
 }
 
-class _HomePageState extends State<HomePage> {
+class _TestePageState extends State<TestePage> {
   int _selectedIndex = 0; // bottom nav
   int _selectedCategory = 0; // categoria selecionada
   String _locationText = "Vila Romana - São Paulo";
