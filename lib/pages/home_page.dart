@@ -3,8 +3,11 @@ import '../components/header.dart';
 import '../components/bottom_menu.dart';
 import '../components/pet_catalog.dart';
 import '../components/categories.dart';
-import '../components/location_widget.dart';
+import '../components/location_widget.dart'; // se AppDrawer estiver separado
 
+// =========================
+// HomePage
+// =========================
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
 
@@ -13,14 +16,14 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  int _selectedIndex = 0; // bottom nav
-  int _selectedCategory = 0; // categoria selecionada
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+  int _selectedIndex = 0;
+  int _selectedCategory = 0;
   String _locationText = "Vila Romana - São Paulo";
 
   void _onItemTapped(int index) {
     setState(() {
       _selectedIndex = index;
-      // lógica de navegação se quiser
     });
   }
 
@@ -32,7 +35,9 @@ class _HomePageState extends State<HomePage> {
         title: const Text('Editar localização'),
         content: TextField(
           controller: controller,
-          decoration: const InputDecoration(hintText: 'Digite a nova localização'),
+          decoration: const InputDecoration(
+            hintText: 'Digite a nova localização',
+          ),
         ),
         actions: [
           TextButton(
@@ -57,36 +62,25 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: const AppHeader(title: "Adoção de Pets"),
+      key: _scaffoldKey,
+      appBar: AppHeader(title: "Adoção de Pets", scaffoldKey: _scaffoldKey),
+      drawer: const AppDrawer(),
       body: Padding(
         padding: const EdgeInsets.all(8.0),
         child: Column(
           children: [
-            // categorias
             CategoriesBar(
               initialIndex: _selectedCategory,
               onChanged: (i) {
                 setState(() {
                   _selectedCategory = i;
-                  // se quiser, passe esse índice ao PetCatalog para filtrar
                 });
               },
             ),
-
             const SizedBox(height: 12),
-
-            // localização (agora acima dos cards)
-            LocationWidget(
-              locationText: _locationText,
-              onTap: _editLocation, // opcional, abre diálogo de edição
-            ),
-
+            LocationWidget(locationText: _locationText, onTap: _editLocation),
             const SizedBox(height: 12),
-
-            // grid de pets
-            Expanded(
-              child: PetCatalog(), // adapte PetCatalog para receber filtro se quiser
-            ),
+            Expanded(child: PetCatalog()),
           ],
         ),
       ),

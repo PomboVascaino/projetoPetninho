@@ -39,12 +39,18 @@ class _CategoriesBarState extends State<CategoriesBar> {
         itemBuilder: (context, i) {
           final isSelected = i == _selected;
           return ChoiceChip(
-            label: Text(widget.categories[i], style: const TextStyle(fontSize: 14)),
+            label: Text(
+              widget.categories[i],
+              style: const TextStyle(fontSize: 14),
+            ),
             selected: isSelected,
+            showCheckmark: false, // 🔥 remove o "Vzinho"
             selectedColor: primary,
             backgroundColor: Colors.white,
             shape: RoundedRectangleBorder(
-              side: BorderSide(color: isSelected ? primary : const Color(0xFFEAEAEA)),
+              side: BorderSide(
+                color: isSelected ? primary : const Color(0xFFEAEAEA),
+              ),
               borderRadius: BorderRadius.circular(20),
             ),
             onSelected: (_) {
