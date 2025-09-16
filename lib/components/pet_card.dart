@@ -35,7 +35,9 @@ class PetCard extends StatelessWidget {
           children: [
             // imagem com canto arredondado
             ClipRRect(
-              borderRadius: BorderRadius.vertical(top: Radius.circular(cardRadius)),
+              borderRadius: BorderRadius.vertical(
+                top: Radius.circular(cardRadius),
+              ),
               child: Image.network(
                 imageUrl,
                 height: 130,
@@ -56,25 +58,46 @@ class PetCard extends StatelessWidget {
                       children: [
                         Row(
                           children: [
-                            Text(name, style: TextStyle(fontWeight: FontWeight.w700)),
+                            Text(
+                              name,
+                              style: TextStyle(fontWeight: FontWeight.w700),
+                            ),
                             SizedBox(width: 6),
                             Icon(
                               gender == 'm' ? Icons.male : Icons.female,
                               size: 16,
-                              color: gender == 'm' ? Colors.blueAccent : Colors.pinkAccent,
+                              color: gender == 'm'
+                                  ? Colors.blueAccent
+                                  : Colors.pinkAccent,
                             ),
                           ],
                         ),
                         SizedBox(height: 4),
-                        Text("($place)", style: TextStyle(fontSize: 12, color: Colors.grey[600])),
+                        Text(
+                          "($place)",
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: Colors.grey[600],
+                          ),
+                        ),
                         SizedBox(height: 4),
-                        Text(age, style: TextStyle(fontSize: 12, color: Colors.grey[700])),
+                        Text(
+                          age,
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: Colors.grey[700],
+                          ),
+                        ),
                       ],
                     ),
                   ),
 
                   // coração (favorito)
-                  Icon(Icons.favorite_border, size: 20, color: Colors.grey[700]),
+                  Icon(
+                    Icons.favorite_border,
+                    size: 20,
+                    color: Colors.grey[700],
+                  ),
                 ],
               ),
             ),
@@ -83,12 +106,10 @@ class PetCard extends StatelessWidget {
             Flexible(
               child: Padding(
                 padding: const EdgeInsets.fromLTRB(10, 0, 10, 10),
-                child: SingleChildScrollView(
-                  child: Wrap(
-                    spacing: 6,
-                    runSpacing: 6,
-                    children: tags.map((t) => _smallTag(t)).toList(),
-                  ),
+                child: Wrap(
+                  spacing: 6,
+                  runSpacing: 6,
+                  children: tags.map((t) => _smallTag(t)).toList(),
                 ),
               ),
             ),

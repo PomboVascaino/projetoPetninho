@@ -14,7 +14,7 @@ class PetCatalog extends StatelessWidget {
         "place": "Barra Funda - São Paulo",
         "age": "8 meses",
         "tags": ["Gosta de brincar", "Dócil", "Agitado"],
-        "img": "https://i.imgur.com/IyLen7R.png"
+        "img": "https://i.imgur.com/IyLen7R.png",
       },
       {
         "name": "Crystal",
@@ -22,7 +22,7 @@ class PetCatalog extends StatelessWidget {
         "place": "Cachoeirinha - São Paulo",
         "age": "1 ano",
         "tags": ["Gosta de passear", "Dócil", "Calma"],
-        "img": "https://i.imgur.com/ZbttlFX.png"
+        "img": "https://i.imgur.com/ZbttlFX.png",
       },
     ];
 
@@ -31,21 +31,26 @@ class PetCatalog extends StatelessWidget {
       itemCount: pets.length,
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 2,
-        childAspectRatio: 0.65,
+        childAspectRatio: 0.60,
         mainAxisSpacing: 12,
         crossAxisSpacing: 12,
       ),
       itemBuilder: (context, index) {
         final p = pets[index];
 
-        return PetCard(
-          name: p['name'] as String,
-          gender: p['gender'] as String,
-          place: p['place'] as String,
-          age: p['age'] as String,
-          // converte List<dynamic> -> List<String>
-          tags: List<String>.from(p['tags'] as List<dynamic>),
-          imageUrl: p['img'] as String,
+        return ConstrainedBox(
+          constraints: const BoxConstraints(
+            maxHeight: 280, // altura máxima do card
+          ),
+          child: PetCard(
+            name: p['name'] as String,
+            gender: p['gender'] as String,
+            place: p['place'] as String,
+            age: p['age'] as String,
+            // converte List<dynamic> -> List<String>
+            tags: List<String>.from(p['tags'] as List<dynamic>),
+            imageUrl: p['img'] as String,
+          ),
         );
       },
     );
