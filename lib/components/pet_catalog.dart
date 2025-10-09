@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'pet_card.dart';
+import 'package:teste_app/pages/pet_perfil_page.dart';
+import 'package:teste_app/components/pet_card.dart';
 
 class PetCatalog extends StatelessWidget {
   const PetCatalog({super.key});
@@ -38,20 +39,36 @@ class PetCatalog extends StatelessWidget {
       itemBuilder: (context, index) {
         final p = pets[index];
 
-        return ConstrainedBox(
-          constraints: const BoxConstraints(
-            maxHeight: 280, // altura máxima do card
-          ),
+        final petCard = ConstrainedBox(
+          constraints: const BoxConstraints(maxHeight: 280),
           child: PetCard(
             name: p['name'] as String,
             gender: p['gender'] as String,
             place: p['place'] as String,
             age: p['age'] as String,
-            // converte List<dynamic> -> List<String>
             tags: List<String>.from(p['tags'] as List<dynamic>),
             imageUrl: p['img'] as String,
           ),
         );
+
+        // Se for a Crystal, abre a tela ao clicar
+        if (p['name'] == "Crystal") {
+          return InkWell(
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) =>
+                      const PetPerfilPage(), // <- sua página pet_card.dart
+                ),
+              );
+            },
+            child: petCard,
+          );
+        }
+
+        // Outros pets continuam normais
+        return petCard;
       },
     );
   }

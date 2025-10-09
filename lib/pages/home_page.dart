@@ -62,6 +62,7 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white, // <--- adiciona isso
       key: _scaffoldKey,
       appBar: AppHeader(title: "Adoção de Pets", scaffoldKey: _scaffoldKey),
       drawer: const AppDrawer(),
