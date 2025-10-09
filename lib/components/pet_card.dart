@@ -119,14 +119,14 @@ class PetCard extends StatelessWidget {
     );
   }
 
-  Widget _smallTag(String text) {
-    return Container(
-      padding: EdgeInsets.symmetric(horizontal: 8, vertical: 6),
-      decoration: BoxDecoration(
-        color: Color(0xFFb3e0db),
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Text(text, style: TextStyle(fontSize: 11, color: Colors.black87)),
-    );
+    Widget _smallTag(String text) {
+      return Container(
+        padding: EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+        decoration: BoxDecoration(
+          color: Color(0xFFb3e0db),
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Text(text, style: TextStyle(fontSize: 11, color: Colors.black87)),
+      );
   }
 }

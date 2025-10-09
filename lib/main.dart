@@ -1,21 +1,18 @@
 import 'package:flutter/material.dart';
-import 'package:teste_app/pages/home_page.dart';
+import 'pages/home_page.dart';
 
+void main() {
+  runApp(const MyApp());
+}
 
-void main() => runApp(const PetninhoApp());
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
 
-class PetninhoApp extends StatelessWidget {
-  const PetninhoApp({super.key});
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Petninho',
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        primaryColor: const Color(0xFFBFEFE6),
-        scaffoldBackgroundColor: Colors.white,
-      ),
-      home: const HomePage(),
+      home: const HomePage(), // chama a tela de perfil do pet
     );
   }
 }
