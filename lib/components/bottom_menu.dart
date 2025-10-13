@@ -1,3 +1,5 @@
+// lib/components/bottom_menu.dart
+
 import 'package:flutter/material.dart';
 
 class BottomMenu extends StatelessWidget {
@@ -5,6 +7,8 @@ class BottomMenu extends StatelessWidget {
   final ValueChanged<int> onTap;
   final Color? selectedColor;
   final Color? unselectedColor;
+  // NOVO: Flag para forçar o desligamento de TODOS os botões
+  final bool forceAllOff;
 
   const BottomMenu({
     Key? key,
@@ -12,6 +16,7 @@ class BottomMenu extends StatelessWidget {
     required this.onTap,
     this.selectedColor,
     this.unselectedColor,
+    this.forceAllOff = false, // Padrão é falso
   }) : super(key: key);
 
   @override
@@ -33,26 +38,33 @@ class BottomMenu extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(24),
-        boxShadow: [
+        boxShadow: const [
           BoxShadow(color: Colors.black12, blurRadius: 8, offset: Offset(0, 4)),
         ],
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: List.generate(items.length, (index) {
-          final isSelected = currentIndex == index;
+          var isSelected = currentIndex == index;
+
+          // 💡 LÓGICA CHAVE: Se forceAllOff for true, NENHUM botão está selecionado.
+          if (forceAllOff) {
+            isSelected = false;
+          }
+
           final color = isSelected ? accent : unselected;
+
           return GestureDetector(
             onTap: () => onTap(index),
             behavior: HitTestBehavior.translucent,
             child: AnimatedContainer(
-              duration: Duration(milliseconds: 250),
-              padding: EdgeInsets.symmetric(vertical: 4, horizontal: 8),
+              duration: const Duration(milliseconds: 250),
+              padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   AnimatedScale(
-                    scale: isSelected ? 1.2 : 1.0, // dá zoom quando selecionado
+                    scale: isSelected ? 1.2 : 1.0,
                     duration: const Duration(milliseconds: 250),
                     curve: Curves.easeOut,
                     child: Icon(

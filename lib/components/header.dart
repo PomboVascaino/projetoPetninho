@@ -3,9 +3,11 @@ import 'package:flutter/material.dart';
 // =======================================================
 // Header do app
 // =======================================================
-class HomePage extends StatelessWidget {
-  HomePage({super.key});
 
+// A classe HomePage abaixo é apenas um exemplo de uso.
+class HomePage extends StatelessWidget {
+  // 🚨 CORREÇÃO 1: Removido o 'const' da inicialização da GlobalKey,
+  // que causava erro de sintaxe 'final GlobalKey = const GlobalKey()'.
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
   @override
@@ -25,7 +27,7 @@ class HomePage extends StatelessWidget {
 // -------------------
 class AppHeader extends StatelessWidget implements PreferredSizeWidget {
   final String title;
-  final GlobalKey<ScaffoldState> scaffoldKey; // chave obrigatória agora
+  final GlobalKey<ScaffoldState> scaffoldKey;
 
   const AppHeader({super.key, required this.title, required this.scaffoldKey});
 
@@ -35,12 +37,18 @@ class AppHeader extends StatelessWidget implements PreferredSizeWidget {
   Widget build(BuildContext context) {
     return AppBar(
       toolbarHeight: _preferredHeight,
+      // Fundo sempre branco (importante!)
       backgroundColor: Colors.white,
       elevation: 0,
+
+      // ✅ Solução para o header transparente ao rolar
+      scrolledUnderElevation: 0,
+
       leading: IconButton(
         icon: const Icon(Icons.menu, size: 28, color: Colors.black),
         onPressed: () {
-          scaffoldKey.currentState?.openDrawer(); // abre o drawer da página
+          // Abre o drawer associado ao ScaffoldKey
+          scaffoldKey.currentState?.openDrawer();
         },
       ),
       title: Image.network(
@@ -62,13 +70,15 @@ class AppHeader extends StatelessWidget implements PreferredSizeWidget {
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 8),
       decoration: BoxDecoration(
-        color: Color(0xFFb3e0db),
+        color: const Color(0xFFb3e0db),
         borderRadius: BorderRadius.circular(24),
         boxShadow: const [
           BoxShadow(color: Colors.black12, blurRadius: 6, offset: Offset(0, 2)),
         ],
       ),
       child: IconButton(
+        // 🚨 CORREÇÃO 2: Removido o 'const' daqui.
+        // A variável 'icon' não é constante, então o Widget não pode ser 'const'.
         icon: Icon(icon, size: 20, color: Colors.black87),
         onPressed: () {},
         splashRadius: 20,
@@ -93,7 +103,7 @@ class AppDrawer extends StatelessWidget {
 }
 
 // =======================================================
-// Conteúdo do menu (antigo MenuScreen)
+// Conteúdo do menu
 // =======================================================
 class MenuScreen extends StatelessWidget {
   const MenuScreen({super.key});
@@ -192,7 +202,3 @@ class MenuTile extends StatelessWidget {
     );
   }
 }
-
-// =======================================================
-// Página inicial (exemplo de uso)
-// =======================================================

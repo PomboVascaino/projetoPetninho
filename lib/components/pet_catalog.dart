@@ -7,7 +7,6 @@ class PetCatalog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Tipando a lista ajuda o analisador a entender os tipos
     final List<Map<String, dynamic>> pets = [
       {
         "name": "Theo",
@@ -55,12 +54,11 @@ class PetCatalog extends StatelessWidget {
         if (p['name'] == "Crystal") {
           return InkWell(
             onTap: () {
+              // 💡 CORREÇÃO: Remove a propriedade 'onNavigateBack' da chamada,
+              // pois ela foi removida do construtor de PetPerfilPage.
               Navigator.push(
                 context,
-                MaterialPageRoute(
-                  builder: (context) =>
-                      const PetPerfilPage(), // <- sua página pet_card.dart
-                ),
+                MaterialPageRoute(builder: (context) => const PetPerfilPage()),
               );
             },
             child: petCard,

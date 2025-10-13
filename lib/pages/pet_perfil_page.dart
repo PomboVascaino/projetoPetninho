@@ -1,9 +1,26 @@
 import 'package:flutter/material.dart';
+// Note: Assumindo que AppHeader e BottomMenu são componentes existentes
+// Se não existirem, você deve criá-los ou usar widgets placeholder
 import '../components/header.dart';
 import '../components/bottom_menu.dart';
 
+// Assumindo que AppDrawer é um componente existente
+class AppDrawer extends StatelessWidget {
+  const AppDrawer({super.key});
+  @override
+  Widget build(BuildContext context) {
+    return const Drawer(child: Center(child: Text('Menu Lateral')));
+  }
+}
+
 class PetPerfilPage extends StatefulWidget {
-  const PetPerfilPage({super.key});
+  // 💡 REMOVIDO: onNavigateBack não é mais necessário, pois usaremos Navigator.pop
+  // final VoidCallback onNavigateBack;
+
+  const PetPerfilPage({
+    super.key,
+    // required this.onNavigateBack, // Removido
+  });
 
   @override
   State<PetPerfilPage> createState() => _PetPerfilPageState();
@@ -14,7 +31,6 @@ class _PetPerfilPageState extends State<PetPerfilPage> {
   int _currentPage = 0;
 
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
-  int _currentIndex = 0;
 
   final List<String> petImages = [
     'https://i.imgur.com/ZbttlFX.png',
@@ -40,7 +56,7 @@ class _PetPerfilPageState extends State<PetPerfilPage> {
       decoration: BoxDecoration(
         color: tagColor,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Color(0xFFb3e0db), width: 1),
+        border: Border.all(color: const Color(0xFFb3e0db), width: 1),
       ),
       child: Text(
         text,
@@ -87,11 +103,10 @@ class _PetPerfilPageState extends State<PetPerfilPage> {
       key: _scaffoldKey,
       backgroundColor: Colors.white,
 
-      // O AppHeader exibe o ícone de menu e usa o _scaffoldKey para abrir o Drawer.
-      appBar: AppHeader(title: "Petninho", scaffoldKey: _scaffoldKey),
+      // O AppHeader é mantido
+      appBar: AppHeader(title: "Detalhes do Pet", scaffoldKey: _scaffoldKey),
 
-      // 🚨 DRAWER ADICIONADO AQUI 🚨
-      // Assumindo que você tem uma classe AppDrawer em '../components/app_drawer.dart'
+      // DRAWER ADICIONADO AQUI
       drawer: const AppDrawer(),
 
       body: SingleChildScrollView(
@@ -331,17 +346,30 @@ class _PetPerfilPageState extends State<PetPerfilPage> {
             ),
 
             const SizedBox(height: 100),
+
+            // 💡 REMOVIDO: Este botão não é mais necessário, pois a navegação de volta
+            // será tratada pelo BottomMenu ou pelo botão de voltar nativo.
+            // ElevatedButton(
+            //   onPressed: widget.onNavigateBack,
+            //   ...
+            // ),
+            // const SizedBox(height: 24),
           ],
         ),
       ),
 
+      // 💡 NOVO: BottomMenu forçado a ficar inativo (todos os botões apagados)
       bottomNavigationBar: BottomMenu(
-        currentIndex: _currentIndex,
+        // Índice 0 é o 'Início'. O menu inteiro deve estar apagado, mas este item
+        // em particular pode ser um "voltar para Home" de forma implícita.
+        currentIndex: 0,
         onTap: (index) {
-          setState(() {
-            _currentIndex = index;
-          });
+          // Se o usuário clicar em qualquer item, simplesmente retorna à página anterior (Home).
+          // Em um app real, você checaria se index == 0.
+          Navigator.pop(context);
         },
+        // Força todos os ícones a ficarem apagados/inativos visualmente.
+        forceAllOff: true,
       ),
     );
   }
