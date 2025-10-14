@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:teste_app/pages/favoritos_pages.dart';
 import 'pages/home_page.dart';
 
 void main() {
@@ -12,7 +13,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: const HomePage(), // chama a tela de perfil do pet
+      home: const FavoritosPage(), // chama a tela de perfil do pet
     );
   }
 }

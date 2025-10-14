@@ -1,24 +1,21 @@
 import 'package:flutter/material.dart';
+import 'package:teste_app/Models/pets_model.dart';
 // Note: Assumindo que AppHeader e BottomMenu são componentes existentes
 // Se não existirem, você deve criá-los ou usar widgets placeholder
 import '../components/header.dart';
 import '../components/bottom_menu.dart';
 
 // Assumindo que AppDrawer é um componente existente
-class AppDrawer extends StatelessWidget {
-  const AppDrawer({super.key});
-  @override
-  Widget build(BuildContext context) {
-    return const Drawer(child: Center(child: Text('Menu Lateral')));
-  }
-}
 
 class PetPerfilPage extends StatefulWidget {
   // 💡 REMOVIDO: onNavigateBack não é mais necessário, pois usaremos Navigator.pop
   // final VoidCallback onNavigateBack;
 
+  final Pet pet;
+
   const PetPerfilPage({
     super.key,
+    required this.pet,
     // required this.onNavigateBack, // Removido
   });
 
@@ -31,21 +28,6 @@ class _PetPerfilPageState extends State<PetPerfilPage> {
   int _currentPage = 0;
 
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
-
-  final List<String> petImages = [
-    'https://i.imgur.com/ZbttlFX.png',
-    'https://i.imgur.com/aEw9v3C.jpeg',
-    'https://i.imgur.com/lSEI2aP.jpeg',
-  ];
-
-  final List<String> petTags = [
-    'Gosta de passear',
-    'Dócil',
-    'Calma',
-    'Castrada',
-    'Vacinas em dia',
-    'Adora crianças',
-  ];
 
   Widget _buildTag(String text) {
     const Color tagColor = Color(0xFFb3e0db);
@@ -73,7 +55,7 @@ class _PetPerfilPageState extends State<PetPerfilPage> {
     showDialog(
       context: context,
       barrierDismissible: true,
-      barrierColor: Colors.black.withOpacity(0.85),
+      barrierColor: Colors.black.withValues(alpha: 0.85),
       useSafeArea: true,
       builder: (BuildContext context) {
         return Center(
@@ -124,14 +106,14 @@ class _PetPerfilPageState extends State<PetPerfilPage> {
                       borderRadius: BorderRadius.circular(20),
                       child: PageView.builder(
                         controller: _pageController,
-                        itemCount: petImages.length,
+                        itemCount: widget.pet.imagens.length,
                         onPageChanged: (index) {
                           setState(() {
                             _currentPage = index;
                           });
                         },
                         itemBuilder: (context, index) {
-                          final imageUrl = petImages[index];
+                          final imageUrl = widget.pet.imagens[index];
                           return GestureDetector(
                             onTap: () => _abrirModalImagem(imageUrl),
                             child: AnimatedOpacity(
@@ -160,7 +142,7 @@ class _PetPerfilPageState extends State<PetPerfilPage> {
                   const SizedBox(height: 10),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
-                    children: List.generate(petImages.length, (index) {
+                    children: List.generate(widget.pet.imagens.length, (index) {
                       return AnimatedContainer(
                         duration: const Duration(milliseconds: 250),
                         margin: const EdgeInsets.symmetric(horizontal: 4),
@@ -205,9 +187,9 @@ class _PetPerfilPageState extends State<PetPerfilPage> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Row(
-                          children: const [
+                          children: [
                             Text(
-                              'Crystal',
+                              widget.pet.nome,
                               style: TextStyle(
                                 fontSize: 22,
                                 fontWeight: FontWeight.bold,
@@ -239,9 +221,8 @@ class _PetPerfilPageState extends State<PetPerfilPage> {
                         const SizedBox(height: 12),
                         Container(
                           padding: const EdgeInsets.symmetric(vertical: 8),
-                          child: const Text(
-                            'Crystal é uma cadela da raça Shitzu, muito amigável e dócil. '
-                            'Ela adora brincar e se dá bem com crianças e outros animais.',
+                          child: Text(
+                            widget.pet.descricao,
                             style: TextStyle(fontSize: 16),
                           ),
                         ),
@@ -338,7 +319,9 @@ class _PetPerfilPageState extends State<PetPerfilPage> {
                     Wrap(
                       spacing: 8.0,
                       runSpacing: 8.0,
-                      children: petTags.map((tag) => _buildTag(tag)).toList(),
+                      children: widget.pet.tags
+                          .map((tag) => _buildTag(tag))
+                          .toList(),
                     ),
                   ],
                 ),
