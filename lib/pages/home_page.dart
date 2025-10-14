@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:teste_app/pages/favoritos_pages.dart';
 import '../components/header.dart';
 import '../components/bottom_menu.dart';
 import '../components/pet_catalog.dart';
@@ -27,23 +28,30 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
-  // Definimos o número de itens fixos no menu inferior (5, de 0 a 4)
+  // Número de itens fixos no menu inferior (0 a 4)
   static const int _kMenuSize = 5;
 
   int _selectedIndex = 0; // O índice 0 é a Home/Início
   int _selectedCategory = 0;
   String _locationText = "Vila Romana - São Paulo";
 
+  // Função para alterar o índice do menu inferior
   void _onItemTapped(int index) {
-    // Só permite a mudança se o índice estiver dentro do range do menu (0 a 4)
     if (index >= 0 && index < _kMenuSize) {
-      setState(() {
-        _selectedIndex = index;
-      });
+      if (index == 3) {
+        // ✅ Se o usuário clicar em "Favoritos" (índice 3), abre FavoritosPage
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const FavoritosPage()),
+        );
+      } else {
+        // Atualiza o índice para os outros botões
+        setState(() {
+          _selectedIndex = index;
+        });
+      }
     }
   }
-
-  // 💡 REMOVIDO: A função navigateToExternalPage não é mais necessária.
 
   Future<void> _editLocation() async {
     final controller = TextEditingController(text: _locationText);
@@ -77,9 +85,7 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
-  // Função que constrói o corpo da tela com base no índice selecionado
   Widget _buildBody(int index) {
-    // Conteúdo da Home (Início) - Índice 0
     if (index == 0) {
       return Padding(
         padding: const EdgeInsets.all(8.0),
@@ -96,17 +102,12 @@ class _HomePageState extends State<HomePage> {
             const SizedBox(height: 12),
             LocationWidget(locationText: _locationText, onTap: _editLocation),
             const SizedBox(height: 12),
-            Expanded(
-              // 💡 CORREÇÃO APLICADA: O parâmetro onPetTap foi removido daqui.
-              // A navegação agora é tratada internamente pelo PetCatalog.
-              child: const PetCatalog(),
-            ),
+            Expanded(child: PetCatalog()),
           ],
         ),
       );
     }
 
-    // Conteúdo para telas que SÃO parte do menu (índices 1 a 4)
     if (index > 0 && index < _kMenuSize) {
       final menuItems = ["Loja", "Chat", "Favoritos", "Perfil"];
       final title = menuItems[index - 1];
@@ -119,7 +120,6 @@ class _HomePageState extends State<HomePage> {
       );
     }
 
-    // Fallback
     return const Center(
       child: Text('Página não encontrada', style: TextStyle(fontSize: 24)),
     );
@@ -127,19 +127,15 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    // A navegação para PetPerfilPage usa Navigator.push, que empilha uma nova rota.
-    // Isso garante que o BottomMenu da HomePage desapareça naturalmente quando a página de perfil é aberta.
     return Scaffold(
       backgroundColor: Colors.white,
       key: _scaffoldKey,
       appBar: AppHeader(title: "Adoção de Pets", scaffoldKey: _scaffoldKey),
       drawer: const AppDrawer(),
-      body: _buildBody(_selectedIndex), // O corpo da tela muda com o índice
-
+      body: _buildBody(_selectedIndex),
       bottomNavigationBar: BottomMenu(
         currentIndex: _selectedIndex,
         onTap: _onItemTapped,
-        // forceAllOff não é mais necessário aqui, pois a navegação externa usa uma nova rota.
         forceAllOff: false,
       ),
     );
