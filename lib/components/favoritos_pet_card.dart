@@ -1,29 +1,23 @@
 import 'package:flutter/material.dart';
 
-/// Widget de cartão reutilizável para exibir informações de um pet favorito.
-/// Pode ser usado em diversas telas (ex: lista de favoritos, adoção, busca, etc.).
+// Widget que representa um cartão de pet favorito (com nome, idade, cidade, imagem, sexo, etc.)
 class FavoritePetCard extends StatefulWidget {
-  // Dados básicos do pet
-  final String nome; // Nome do pet
-  final String cidade; // Cidade onde o pet está
-  final String idade; // Idade do pet
-  final String imagem; // URL da imagem do pet
-  final String sexo; // Sexo do pet (M ou F)
+  final String nome;
+  final String cidade;
+  final String idade;
+  final String imagem;
+  final String sexo;
 
-  // Funções de callback para interações
-  final VoidCallback?
-  onFavoritoTap; // Função chamada ao tocar no botão de favorito
-  final VoidCallback? onTap; // Função chamada ao tocar no card inteiro
+  final VoidCallback? onFavoritoTap;
+  final VoidCallback? onTap;
 
-  // Opções de personalização
-  final bool initiallyFavorite; // Define se o pet já começa como favorito
-  final bool showFavoriteButton; // Define se o botão de favorito será mostrado
-  final double imageWidth; // Largura da imagem
-  final double imageHeight; // Altura da imagem
-  final double borderRadius; // Arredondamento dos cantos
-  final double elevation; // Elevação (sombra) do card
+  final bool initiallyFavorite;
+  final bool showFavoriteButton;
+  final double imageWidth;
+  final double imageHeight;
+  final double borderRadius;
+  final double elevation;
 
-  /// Construtor com parâmetros nomeados e valores padrão para personalização
   const FavoritePetCard({
     Key? key,
     required this.nome,
@@ -37,71 +31,48 @@ class FavoritePetCard extends StatefulWidget {
     this.showFavoriteButton = true,
     this.imageWidth = 110,
     this.imageHeight = 110,
-    this.borderRadius = 16,
-    this.elevation = 4,
+    this.borderRadius = 18,
+    this.elevation = 3,
   }) : super(key: key);
 
   @override
   State<FavoritePetCard> createState() => _FavoritePetCardState();
 }
 
-/// Estado do widget FavoritePetCard.
-/// Responsável por controlar a animação e o estado do botão de favorito.
 class _FavoritePetCardState extends State<FavoritePetCard>
     with SingleTickerProviderStateMixin {
-  // Controle se o pet está favoritado ou não
   late bool _isFavorite;
-
-  // Controladores de animação para o botão de coração
   late final AnimationController _controller;
   late final Animation<double> _scaleAnim;
-
-  // Cor de destaque usada no fundo do card
-  static const Color _accentColor = Color(0xFFB3E0DB);
 
   @override
   void initState() {
     super.initState();
-
-    // Define se o pet começa favoritado ou não
     _isFavorite = widget.initiallyFavorite;
 
-    // Cria o controlador da animação com duração de 180ms
     _controller = AnimationController(
-      vsync: this, // Necessário para controlar o ciclo de animação
-      duration: const Duration(milliseconds: 180),
+      vsync: this,
+      duration: const Duration(milliseconds: 120),
+      lowerBound: 0.98,
+      upperBound: 1.0,
     );
 
-    // Define uma animação de "pulsar" (escala de 1.0 para 1.25)
-    _scaleAnim = Tween<double>(
-      begin: 1.0,
-      end: 1.25,
-    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOut));
+    _scaleAnim = CurvedAnimation(parent: _controller, curve: Curves.easeOut);
   }
 
   @override
   void dispose() {
-    // Libera o controlador da animação quando o widget for destruído
     _controller.dispose();
     super.dispose();
   }
 
-  /// Função chamada ao clicar no botão de favorito (ícone de coração)
   void _handleFavoriteTap() {
-    // Inverte o estado atual (favorito ↔ não favorito)
     setState(() => _isFavorite = !_isFavorite);
-
-    // Executa a animação: aumenta e volta
-    _controller.forward().then((_) => _controller.reverse());
-
-    // Chama o callback externo se existir
     widget.onFavoritoTap?.call();
   }
 
-  /// Constrói a imagem do pet com tratamento para carregamento e erros.
   Widget _buildImage() {
     return ClipRRect(
-      // Arredonda apenas os cantos do lado esquerdo
       borderRadius: BorderRadius.horizontal(
         left: Radius.circular(widget.borderRadius),
       ),
@@ -109,30 +80,20 @@ class _FavoritePetCardState extends State<FavoritePetCard>
         width: widget.imageWidth,
         height: widget.imageHeight,
         child: Image.network(
-          widget.imagem, // Carrega a imagem via URL
-          fit: BoxFit.cover, // Cobre todo o espaço do contêiner
-          // Enquanto carrega, mostra um indicador de progresso
-          loadingBuilder: (context, child, loadingProgress) {
-            if (loadingProgress == null)
-              return child; // Quando terminar, mostra a imagem
+          widget.imagem,
+          fit: BoxFit.cover,
+          loadingBuilder: (context, child, progress) {
+            if (progress == null) return child;
             return Container(
-              color: Colors.grey[300],
+              color: Colors.grey[200],
               child: const Center(
-                child: SizedBox(
-                  width: 28,
-                  height: 28,
-                  child: CircularProgressIndicator(strokeWidth: 2),
-                ),
+                child: CircularProgressIndicator(strokeWidth: 2),
               ),
             );
           },
-
-          // Caso haja erro ao carregar a imagem, mostra um ícone substituto
-          errorBuilder: (context, error, stackTrace) => Container(
+          errorBuilder: (_, __, ___) => Container(
             color: Colors.grey[300],
-            child: const Center(
-              child: Icon(Icons.pets, size: 36, color: Colors.white),
-            ),
+            child: const Icon(Icons.pets, size: 40, color: Colors.white),
           ),
         ),
       ),
@@ -141,7 +102,6 @@ class _FavoritePetCardState extends State<FavoritePetCard>
 
   @override
   Widget build(BuildContext context) {
-    // Define ícone e cor conforme o sexo do pet
     final sexIcon = widget.sexo.toUpperCase() == 'F'
         ? Icons.female
         : Icons.male;
@@ -149,113 +109,82 @@ class _FavoritePetCardState extends State<FavoritePetCard>
         ? Colors.pinkAccent
         : Colors.blueAccent;
 
-    return Semantics(
-      // Acessibilidade: descrição lida por leitores de tela
-      label:
-          'Cartão do pet ${widget.nome}, ${widget.idade}, localizado em ${widget.cidade}',
-      button: true, // Indica que o componente é interativo
+    final theme = Theme.of(context);
+
+    return ScaleTransition(
+      scale: _scaleAnim,
       child: GestureDetector(
-        // Permite que o card inteiro seja clicável
-        onTap: widget.onTap,
+        onTapDown: (_) => _controller.reverse(),
+        onTapUp: (_) {
+          _controller.forward();
+          widget.onTap?.call();
+        },
+        onTapCancel: () => _controller.forward(),
         child: Card(
-          margin: const EdgeInsets.symmetric(
-            vertical: 8,
-          ), // Espaçamento vertical entre cards
-          elevation: widget.elevation, // Sombra do card
+          elevation: widget.elevation,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(widget.borderRadius),
           ),
           child: Container(
             decoration: BoxDecoration(
-              // Gradiente de fundo sutil (branco → verde-claro)
-              gradient: LinearGradient(
-                colors: [Colors.white, _accentColor.withOpacity(0.45)],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
+              color: Colors.white, // fundo branco
               borderRadius: BorderRadius.circular(widget.borderRadius),
             ),
             child: Row(
               children: [
-                // Imagem do pet no lado esquerdo
                 _buildImage(),
-
-                // Parte direita com informações do pet
                 Expanded(
-                  child: ListTile(
-                    contentPadding: const EdgeInsets.symmetric(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
                       horizontal: 12,
-                    ), // Espaçamento interno
-                    // Título (nome + ícone de gênero)
-                    title: Row(
-                      children: [
-                        Expanded(
-                          child: Text(
-                            widget.nome,
-                            overflow:
-                                TextOverflow.ellipsis, // Corta nomes longos
-                            style: const TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 18,
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 6),
-                        Icon(
-                          sexIcon,
-                          color: sexColor,
-                          size: 18,
-                        ), // Ícone de gênero
-                      ],
+                      vertical: 8,
                     ),
-
-                    // Subtítulo (cidade e idade)
-                    subtitle: Column(
+                    child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
+                        Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Flexible(
+                              child: Text(
+                                widget.nome,
+                                style: theme.textTheme.titleMedium?.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.black87, // texto escuro
+                                ),
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                            const SizedBox(width: 4),
+                            Icon(sexIcon, color: sexColor, size: 19),
+                          ],
+                        ),
                         const SizedBox(height: 4),
                         Text(
                           widget.cidade,
-                          style: const TextStyle(
-                            fontSize: 14,
-                            color: Colors.grey,
+                          style: theme.textTheme.bodySmall?.copyWith(
+                            color: Colors.grey[700],
                           ),
                         ),
-                        const SizedBox(height: 2),
                         Text(
                           widget.idade,
-                          style: const TextStyle(
-                            fontSize: 14,
-                            color: Colors.grey,
+                          style: theme.textTheme.bodySmall?.copyWith(
+                            color: Colors.grey[700],
                           ),
                         ),
                       ],
                     ),
-
-                    // Ícone de coração (botão de favorito)
-                    trailing: widget.showFavoriteButton
-                        ? ScaleTransition(
-                            // Aplica a animação de zoom no ícone
-                            scale: _scaleAnim,
-                            child: IconButton(
-                              tooltip: _isFavorite
-                                  ? 'Remover dos favoritos'
-                                  : 'Adicionar aos favoritos', // Texto do tooltip
-                              icon: Icon(
-                                _isFavorite
-                                    ? Icons.favorite
-                                    : Icons
-                                          .favorite_border, // Ícone cheio ou vazio
-                                color: Colors.red,
-                                size: 26,
-                              ),
-                              onPressed:
-                                  _handleFavoriteTap, // Chama a função de alternar favorito
-                            ),
-                          )
-                        : null, // Se showFavoriteButton = false, não mostra o botão
                   ),
                 ),
+                if (widget.showFavoriteButton)
+                  IconButton(
+                    icon: Icon(
+                      _isFavorite ? Icons.favorite : Icons.favorite_border,
+                      color: Colors.redAccent,
+                      size: 26,
+                    ),
+                    onPressed: _handleFavoriteTap,
+                  ),
               ],
             ),
           ),
