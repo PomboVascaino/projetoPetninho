@@ -1,11 +1,20 @@
+// lib/components/pet_catalog.dart
+
 import 'package:flutter/material.dart';
 import 'package:teste_app/Models/pets_model.dart';
 import 'package:teste_app/pages/pet_perfil_page.dart';
 import 'package:teste_app/components/pet_card.dart';
+import '../services/favorites_service.dart'; // Importe o serviço
 
-class PetCatalog extends StatelessWidget {
+// 1. Convertido para StatefulWidget para poder atualizar a UI
+class PetCatalog extends StatefulWidget {
   PetCatalog({super.key});
 
+  @override
+  State<PetCatalog> createState() => _PetCatalogState();
+}
+
+class _PetCatalogState extends State<PetCatalog> {
   final List<Pet> pets = [
     Pet(
       nome: "Theo",
@@ -18,7 +27,7 @@ class PetCatalog extends StatelessWidget {
       raca: "Golden",
       idade: 1,
       tags: ["Gosta de brincar", "Dócil", "Agitado"],
-      descricao: "AAAAAAA",
+      descricao: "Um cão amigável e cheio de energia.",
       bairro: "Barra Funda",
       cidade: "São Paulo",
       telefone: "(11)1234-5235",
@@ -34,10 +43,10 @@ class PetCatalog extends StatelessWidget {
       raca: "Shitzu",
       idade: 2,
       tags: ["Gosta de passear", "Dócil", "Calma"],
-      descricao: "A crystal é uma cachorra da raça Shitzua",
+      descricao: "A crystal é uma cachorra da raça Shitzu",
       bairro: "Cachoeirinha",
       cidade: "São Paulo",
-      telefone: "(11 9432-0432)",
+      telefone: "(11) 9432-0432",
     ),
   ];
 
@@ -55,33 +64,31 @@ class PetCatalog extends StatelessWidget {
       itemBuilder: (context, index) {
         final pet = pets[index];
 
-        final petCard = ConstrainedBox(
-          constraints: const BoxConstraints(maxHeight: 280),
-          child: PetCard(
-            name: pet.nome,
-            gender: pet.sexo,
-            place: pet.bairro,
-            age: pet.idade.toString(),
-            tags: List<String>.from(pet.tags),
-            imageUrl: pet.imagens[0],
-          ),
-        );
-
-        // Se for a Crystal, abre a tela ao clicar
-
         return InkWell(
           onTap: () {
-            // 💡 CORREÇÃO: Remove a propriedade 'onNavigateBack' da chamada,
-            // pois ela foi removida do construtor de PetPerfilPage.
             Navigator.push(
               context,
               MaterialPageRoute(builder: (context) => PetPerfilPage(pet: pet)),
             );
           },
-          child: petCard,
+          // 2. Passamos o objeto Pet e a função de controle para o PetCard
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxHeight: 280),
+            child: PetCard(
+              pet: pet,
+              onFavoriteToggle: () {
+                // 3. Lógica para adicionar/remover do serviço
+                if (FavoritesService.isFavorite(pet)) {
+                  FavoritesService.remove(pet);
+                } else {
+                  FavoritesService.add(pet);
+                }
+                // 4. setState para garantir que a UI reflita a mudança (opcional, mas bom)
+                setState(() {});
+              },
+            ),
+          ),
         );
-
-        // Outros pets continuam normais
       },
     );
   }
