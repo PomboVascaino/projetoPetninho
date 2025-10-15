@@ -30,10 +30,7 @@ class LocationWidget extends StatelessWidget {
         if (showLabel)
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 10, 16, 6),
-            child: Text(
-              "Localização",
-              style: TextStyle(color: labelColor),
-            ),
+            child: Text("Localização", style: TextStyle(color: labelColor)),
           ),
 
         // Linha clicável com ícone e texto
@@ -52,7 +49,8 @@ class LocationWidget extends StatelessWidget {
                   ),
                 ),
                 // pequeno chevron para indicar ação opcional
-                if (onTap != null) const Icon(Icons.chevron_right, size: 20, color: Colors.grey),
+                if (onTap != null)
+                  const Icon(Icons.chevron_right, size: 20, color: Colors.grey),
               ],
             ),
           ),
