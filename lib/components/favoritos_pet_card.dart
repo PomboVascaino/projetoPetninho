@@ -2,25 +2,21 @@ import 'package:flutter/material.dart';
 
 // Widget que representa um cartão de pet favorito (com nome, idade, cidade, imagem, sexo, etc.)
 class FavoritePetCard extends StatefulWidget {
-  // Informações exibidas no card
   final String nome;
   final String cidade;
   final String idade;
   final String imagem;
   final String sexo;
 
-  // Callbacks (funções executadas ao clicar)
-  final VoidCallback?
-  onFavoritoTap; // chamado quando o botão de favorito é pressionado
-  final VoidCallback? onTap; // chamado quando o card é clicado
+  final VoidCallback? onFavoritoTap;
+  final VoidCallback? onTap;
 
-  // Configurações visuais e de estado
-  final bool initiallyFavorite; // define se o pet começa marcado como favorito
-  final bool showFavoriteButton; // mostra ou oculta o botão de coração
-  final double imageWidth; // largura da imagem do pet
-  final double imageHeight; // altura da imagem do pet
-  final double borderRadius; // raio da borda do card
-  final double elevation; // elevação do card (sombra)
+  final bool initiallyFavorite;
+  final bool showFavoriteButton;
+  final double imageWidth;
+  final double imageHeight;
+  final double borderRadius;
+  final double elevation;
 
   const FavoritePetCard({
     Key? key,
@@ -43,18 +39,15 @@ class FavoritePetCard extends StatefulWidget {
   State<FavoritePetCard> createState() => _FavoritePetCardState();
 }
 
-// Estado do card — usado para controlar animação e favorito
 class _FavoritePetCardState extends State<FavoritePetCard>
     with SingleTickerProviderStateMixin {
   late bool _isFavorite;
-
   late final AnimationController _controller;
   late final Animation<double> _scaleAnim;
 
   @override
   void initState() {
     super.initState();
-
     _isFavorite = widget.initiallyFavorite;
 
     _controller = AnimationController(
@@ -134,11 +127,7 @@ class _FavoritePetCardState extends State<FavoritePetCard>
           ),
           child: Container(
             decoration: BoxDecoration(
-              gradient: const LinearGradient(
-                colors: [Color(0xFFB3E0DB), Color(0xFFA1D8D3)],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
+              color: Colors.white, // fundo branco
               borderRadius: BorderRadius.circular(widget.borderRadius),
             ),
             child: Row(
@@ -153,7 +142,6 @@ class _FavoritePetCardState extends State<FavoritePetCard>
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        // Linha com nome e ícone de sexo (ajustada)
                         Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
@@ -162,7 +150,7 @@ class _FavoritePetCardState extends State<FavoritePetCard>
                                 widget.nome,
                                 style: theme.textTheme.titleMedium?.copyWith(
                                   fontWeight: FontWeight.bold,
-                                  color: Colors.black87,
+                                  color: Colors.black87, // texto escuro
                                 ),
                                 overflow: TextOverflow.ellipsis,
                               ),
