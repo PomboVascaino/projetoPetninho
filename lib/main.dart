@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:teste_app/pages/favoritos_pages.dart';
 import 'package:teste_app/pages/home_page.dart';
 
 void main() {
