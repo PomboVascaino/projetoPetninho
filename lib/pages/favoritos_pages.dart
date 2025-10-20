@@ -8,14 +8,7 @@ import '../components/header.dart' hide HomePage;
 import '../components/bottom_menu.dart';
 import 'home_page.dart';
 import '../components/favorite_list_item.dart';
-
-class AppDrawer extends StatelessWidget {
-  const AppDrawer({super.key});
-  @override
-  Widget build(BuildContext context) {
-    return const Drawer(child: Center(child: Text('Menu Lateral')));
-  }
-}
+import '../components/menu_drawer.dart';
 
 class FavoritosPage extends StatefulWidget {
   const FavoritosPage({Key? key}) : super(key: key);
@@ -70,7 +63,7 @@ class _FavoritosPageState extends State<FavoritosPage> {
       key: _scaffoldKey,
       backgroundColor: const Color.fromARGB(255, 255, 255, 255),
       appBar: AppHeader(title: "Meus Favoritos", scaffoldKey: _scaffoldKey),
-      drawer: const AppDrawer(),
+      drawer: const MenuDrawer(),
       body: _favoritos.isEmpty
           ? const Center(
               child: Text(

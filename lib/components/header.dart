@@ -14,7 +14,6 @@ class HomePage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       key: _scaffoldKey,
-      drawer: const AppDrawer(),
       appBar: AppHeader(
         title: "Petninho",
         scaffoldKey: _scaffoldKey, // passa a chave aqui
@@ -88,99 +87,6 @@ class AppHeader extends StatelessWidget implements PreferredSizeWidget {
 
   @override
   Size get preferredSize => const Size.fromHeight(_preferredHeight);
-}
-
-// =======================================================
-// Drawer do app
-// =======================================================
-class AppDrawer extends StatelessWidget {
-  const AppDrawer({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return const Drawer(child: MenuScreen());
-  }
-}
-
-// =======================================================
-// Conteúdo do menu
-// =======================================================
-class MenuScreen extends StatelessWidget {
-  const MenuScreen({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    final List<Map<String, dynamic>> menuOptions = [
-      {'title': 'Pets', 'icon': Icons.pets, 'onTap': () => debugPrint('Pets')},
-      {
-        'title': 'Bidu Assistente',
-        'icon': Icons.support_agent,
-        'onTap': () => debugPrint('Bidu Assistente'),
-      },
-      {
-        'title': 'Ongs',
-        'icon': Icons.home_work_outlined,
-        'onTap': () => debugPrint('Ongs'),
-      },
-      {
-        'title': 'Perdi um pet',
-        'icon': Icons.search_off,
-        'onTap': () => debugPrint('Perdi um pet'),
-      },
-      {
-        'title': 'Encontrei um pet',
-        'icon': Icons.search,
-        'onTap': () => debugPrint('Encontrei um pet'),
-      },
-      {
-        'title': 'Namoro Pet',
-        'icon': Icons.favorite_outline,
-        'onTap': () => debugPrint('Namoro Pet'),
-      },
-      {
-        'title': 'Dicas e cuidados',
-        'icon': Icons.tips_and_updates_outlined,
-        'onTap': () => debugPrint('Dicas e cuidados'),
-      },
-    ];
-
-    final List<Map<String, dynamic>> helpOptions = [
-      {
-        'title': 'Entre em contato',
-        'icon': Icons.phone,
-        'onTap': () => debugPrint('Entre em contato'),
-      },
-      {
-        'title': 'Perguntas Frequentes',
-        'icon': Icons.help_outline,
-        'onTap': () => debugPrint('Perguntas Frequentes'),
-      },
-    ];
-
-    return SafeArea(
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              'Opções',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 8),
-            ...menuOptions.map((item) => MenuTile(item: item)).toList(),
-            const SizedBox(height: 16),
-            const Text(
-              'Ajuda',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 8),
-            ...helpOptions.map((item) => MenuTile(item: item)).toList(),
-          ],
-        ),
-      ),
-    );
-  }
 }
 
 // =======================================================

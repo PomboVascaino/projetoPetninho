@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:teste_app/Models/pets_model.dart';
+import 'package:teste_app/components/menu_drawer.dart';
 // Note: Assumindo que AppHeader e BottomMenu são componentes existentes
 // Se não existirem, você deve criá-los ou usar widgets placeholder
 import '../components/header.dart';
 import '../components/bottom_menu.dart';
+import '../services/favorites_service.dart';
 
 // Assumindo que AppDrawer é um componente existente
 
@@ -89,7 +91,7 @@ class _PetPerfilPageState extends State<PetPerfilPage> {
       appBar: AppHeader(title: "Detalhes do Pet", scaffoldKey: _scaffoldKey),
 
       // DRAWER ADICIONADO AQUI
-      drawer: const AppDrawer(),
+      drawer: const MenuDrawer(),
 
       body: SingleChildScrollView(
         padding: const EdgeInsets.only(left: 16.0, right: 16.0, top: 16.0),
@@ -171,7 +173,7 @@ class _PetPerfilPageState extends State<PetPerfilPage> {
             ),
 
             const SizedBox(height: 24),
-
+  
             // --- Card principal com Nome, Descrição e Botões ---
             Card(
               color: Colors.white,
