@@ -1,6 +1,7 @@
 // lib/components/menu_drawer.dart
 
 import 'package:flutter/material.dart';
+import '../pages/chat_page.dart';
 
 class MenuDrawer extends StatelessWidget {
   const MenuDrawer({super.key});
@@ -31,6 +32,10 @@ class MenuDrawer extends StatelessWidget {
             text: 'Bidu Assistente',
             onTap: () {
               Navigator.pop(context);
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const ChatPage()),
+              );
             },
           ),
           _buildMenuItem(
