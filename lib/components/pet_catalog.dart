@@ -109,15 +109,12 @@ class _PetCatalogState extends State<PetCatalog> {
             constraints: const BoxConstraints(maxHeight: 280),
             child: PetCard(
               pet: pet,
+              // Bloco de código corrigido
               onFavoriteToggle: () {
-                // 3. Lógica para adicionar/remover do serviço
-                if (FavoritesService.isFavorite(pet)) {
-                  FavoritesService.remove(pet);
-                } else {
-                  FavoritesService.add(pet);
-                }
-                // 4. setState para garantir que a UI reflita a mudança (opcional, mas bom)
-                setState(() {});
+                // Ação de favoritar agora usa o método unificado.
+                FavoritesService.toggleFavorite(pet);
+                // O setState não é mais estritamente necessário se o PetCard
+                // estiver usando um ValueListenableBuilder para se atualizar.
               },
             ),
           ),
