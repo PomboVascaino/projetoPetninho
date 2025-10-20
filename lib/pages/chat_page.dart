@@ -3,6 +3,7 @@ import 'package:google_generative_ai/google_generative_ai.dart';
 import '../components/header.dart';
 import '../components/bottom_menu.dart';
 import '../components/menu_drawer.dart';
+import '../utils/app_routes.dart';
 
 class ChatPage extends StatefulWidget {
   const ChatPage({super.key});
@@ -151,7 +152,7 @@ class _ChatPageState extends State<ChatPage> {
       backgroundColor: Colors.white,
       key: _scaffoldKey,
       appBar: AppHeader(title: "Bidu Assistente", scaffoldKey: _scaffoldKey),
-      drawer: const MenuDrawer(),
+      drawer: const MenuDrawer(currentRoute: AppRoutes.chat),
       body: Column(
         children: [
           Expanded(

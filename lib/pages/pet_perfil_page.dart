@@ -158,6 +158,7 @@ class _PetPerfilPageState extends State<PetPerfilPage> {
                           boxShadow: _currentPage == index
                               ? [
                                   BoxShadow(
+                                    // ignore: deprecated_member_use
                                     color: Colors.black.withOpacity(0.25),
                                     blurRadius: 4,
                                     offset: const Offset(0, 2),
