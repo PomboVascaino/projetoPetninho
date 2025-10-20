@@ -23,12 +23,27 @@ class HomePage extends StatelessWidget {
   }
 }
 
+
+
+// Importe o PetSearchDelegate se você já o criou.
+// import 'seu_caminho/pet_search_delegate.dart'; 
+// (Vou assumir que a lógica de showSearch será passada do HomePage)
+
+
 // -------------------
 class AppHeader extends StatelessWidget implements PreferredSizeWidget {
   final String title;
   final GlobalKey<ScaffoldState> scaffoldKey;
+  // NOVO: Adiciona a função de callback para o botão de pesquisa
+  final VoidCallback? onSearchPressed; 
 
-  const AppHeader({super.key, required this.title, required this.scaffoldKey});
+  const AppHeader({
+    super.key, 
+    required this.title, 
+    required this.scaffoldKey,
+    // NOVO: Recebe a função de pesquisa
+    this.onSearchPressed, 
+  });
 
   static const double _preferredHeight = 125.0;
 
@@ -57,15 +72,18 @@ class AppHeader extends StatelessWidget implements PreferredSizeWidget {
       ),
       centerTitle: true,
       actions: [
-        _roundIconButton(Icons.search),
+        // 1. PASSA o callback 'onSearchPressed' para o botão de pesquisa
+        _roundIconButton(Icons.search, onPressed: onSearchPressed), 
         const SizedBox(width: 8),
+        // O botão de notificação permanece inalterado
         _roundIconButton(Icons.notifications_none),
         const SizedBox(width: 8),
       ],
     );
-  }
+  } 
 
-  Widget _roundIconButton(IconData icon) {
+  // 2. MODIFICA o _roundIconButton para aceitar um onPressed
+  Widget _roundIconButton(IconData icon, {VoidCallback? onPressed}) {
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 8),
       decoration: BoxDecoration(
@@ -76,15 +94,15 @@ class AppHeader extends StatelessWidget implements PreferredSizeWidget {
         ],
       ),
       child: IconButton(
-        // 🚨 CORREÇÃO 2: Removido o 'const' daqui.
-        // A variável 'icon' não é constante, então o Widget não pode ser 'const'.
         icon: Icon(icon, size: 20, color: Colors.black87),
-        onPressed: () {},
+        // 3. USA a função onPressed. Se for nula, usa a função vazia.
+        onPressed: onPressed ?? () {}, 
         splashRadius: 20,
       ),
     );
   }
 
+  // A linha corrigida para preferredSize
   @override
   Size get preferredSize => const Size.fromHeight(_preferredHeight);
 }

@@ -15,6 +15,7 @@ class PetCatalog extends StatefulWidget {
 }
 
 class _PetCatalogState extends State<PetCatalog> {
+  // SUA LISTA ORIGINAL ESTÁ AQUI E NÃO FOI ALTERADA NEM REMOVIDA.
   final List<Pet> pets = [
     Pet(
       nome: "Theo",

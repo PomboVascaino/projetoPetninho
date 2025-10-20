@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:teste_app/components/pet_search_delegate.dart';
 import 'package:teste_app/pages/favoritos_pages.dart';
 import '../components/header.dart';
 import '../components/bottom_menu.dart';
@@ -6,6 +7,8 @@ import '../components/pet_catalog.dart';
 import '../components/categories.dart';
 import '../components/location_widget.dart';
 import '../components/menu_drawer.dart';
+// 1. IMPORT NECESSÁRIO: Certifique-se de que o caminho está correto!
+import '../components/pet_search_delegate.dart'; 
 
 // =========================
 // HomePage
@@ -122,7 +125,19 @@ class _HomePageState extends State<HomePage> {
     return Scaffold(
       backgroundColor: Colors.white,
       key: _scaffoldKey,
-      appBar: AppHeader(title: "Adoção de Pets", scaffoldKey: _scaffoldKey),
+      // 2. ADIÇÃO NECESSÁRIA: Passando a ação para o botão de pesquisa no Header
+      appBar: AppHeader(
+        title: "Adoção de Pets",
+        scaffoldKey: _scaffoldKey,
+        onSearchPressed: () {
+          // Ação ao clicar no botão de pesquisa redondo
+          showSearch(
+            context: context,
+            // A classe PetSearchDelegate deve estar definida e acessível.
+            delegate: PetSearchDelegate(), 
+          );
+        },
+      ),
       drawer: const MenuDrawer(),
       body: _buildBody(_selectedIndex),
       bottomNavigationBar: BottomMenu(
