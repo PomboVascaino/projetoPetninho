@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:teste_app/components/pet_search_delegate.dart';
+import 'package:teste_app/components/partial_search_modal.dart.dart';
 import 'package:teste_app/pages/favoritos_pages.dart';
 import '../components/header.dart';
 import '../components/bottom_menu.dart';
@@ -8,7 +8,7 @@ import '../components/categories.dart';
 import '../components/location_widget.dart';
 import '../components/menu_drawer.dart';
 // 1. IMPORT NECESSÁRIO: Certifique-se de que o caminho está correto!
-import '../components/pet_search_delegate.dart'; 
+import '../components/partial_search_modal.dart.dart'; 
 
 // =========================
 // HomePage

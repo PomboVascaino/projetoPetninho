@@ -63,8 +63,7 @@ final List<Pet> allPets = [
 
 class PetSearchDelegate extends SearchDelegate<String> {
   
-  // MÉTODO appBarTheme SUBSTITUÍDO PELA VERSÃO MAIS ROBUSTA E SEGURA
- // SUBSTITUA APENAS ESTE MÉTODO no seu PetSearchDelegate.dart
+  // MÉTODO appBarTheme - MANTIDO INTACTO
 @override
 ThemeData appBarTheme(BuildContext context) {
   final ThemeData theme = Theme.of(context);
@@ -105,13 +104,12 @@ ThemeData appBarTheme(BuildContext context) {
     ),
   );
 }
-// Mantenha todo o restante do código exatamente como estava.
 
-  // 1. Configura o texto de dica da barra
+  // 1. Configura o texto de dica da barra - MANTIDO INTACTO
   @override
   String get searchFieldLabel => 'Pesquisar nome, raça, tags...';
   
-  // 2. Ações à direita da barra (ex: botão de limpar)
+  // 2. Ações à direita da barra (ex: botão de limpar) - MANTIDO INTACTO
   @override
   List<Widget>? buildActions(BuildContext context) {
     return [
@@ -127,7 +125,7 @@ ThemeData appBarTheme(BuildContext context) {
     ];
   }
 
-  // 3. Ações à esquerda da barra (ex: botão de voltar)
+  // 3. Ações à esquerda da barra (ex: botão de voltar) - MANTIDO INTACTO
   @override
   Widget? buildLeading(BuildContext context) {
     return IconButton(
@@ -139,7 +137,7 @@ ThemeData appBarTheme(BuildContext context) {
     );
   }
 
-  // 4. Constrói os resultados da pesquisa
+  // 4. Constrói os resultados da pesquisa - MANTIDO INTACTO
   @override
   Widget buildResults(BuildContext context) {
     // Transforma o texto da pesquisa em letras minúsculas para comparação
@@ -204,20 +202,60 @@ ThemeData appBarTheme(BuildContext context) {
       return matchesName || matchesRace;
     }).toList();
 
-    return ListView.builder(
-      itemCount: suggestions.length,
-      itemBuilder: (context, index) {
-        final pet = suggestions[index];
-        return ListTile(
-          leading: const Icon(Icons.pets),
-          title: Text('${pet.nome} - ${pet.raca}'),
-          onTap: () {
-            // Atualiza a barra de pesquisa com o nome do pet e mostra o resultado
-            query = pet.nome;
-            showResults(context); 
-          },
-        );
-      },
+    return Theme(
+      // Mantém a customização de splash/highlight discreta
+      data: Theme.of(context).copyWith(
+        splashColor: Colors.transparent,
+        highlightColor: Colors.transparent,
+      ),
+      child: ListView.builder(
+        itemCount: suggestions.length,
+        itemBuilder: (context, index) {
+          final pet = suggestions[index];
+          return ListTile(
+            // **********************************************
+            // >>> FOTO QUADRADA <<<
+            // **********************************************
+            leading: ClipRRect(
+              // Define o raio dos cantos (8.0 é um bom padrão)
+              borderRadius: BorderRadius.circular(8.0),
+              child: Image(
+                // Tenta carregar a primeira imagem do pet
+                image: NetworkImage(pet.imagens.isNotEmpty ? pet.imagens.first : ''),
+                width: 40,  // Tamanho da largura
+                height: 40, // Tamanho da altura (para ser um quadrado)
+                fit: BoxFit.cover, // Garante que a imagem preencha o espaço sem distorção
+                errorBuilder: (context, error, stackTrace) {
+                  // Fallback para quando a imagem não carrega
+                  return Container(
+                    width: 40,
+                    height: 40,
+                    color: Colors.grey[200],
+                    child: const Icon(Icons.pets, color: Colors.grey),
+                  );
+                },
+              ),
+            ),
+            
+            title: Text('${pet.nome} - ${pet.raca}'),
+            onTap: () {
+              // *******************************************************************
+              // >>> ALTERAÇÃO SOLICITADA: NAVEGAÇÃO DIRETA PARA O PERFIL DO PET <<<
+              // *******************************************************************
+              
+              // 1. Fecha a pesquisa
+              // close(context, null) é melhor do que close(context, pet.nome) quando você não precisa retornar um valor.
+              close(context, ''); 
+              
+              // 2. Navega diretamente para a página do perfil do pet
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => PetPerfilPage(pet: pet)),
+              );
+            },
+          );
+        },
+      ),
     );
   }
-}
+} 

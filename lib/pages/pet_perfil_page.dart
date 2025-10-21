@@ -6,6 +6,7 @@ import 'package:teste_app/components/menu_drawer.dart';
 import '../components/header.dart';
 import '../components/bottom_menu.dart';
 import '../services/favorites_service.dart';
+import '../components/partial_search_modal.dart.dart'; 
 
 // Assumindo que AppDrawer é um componente existente
 
