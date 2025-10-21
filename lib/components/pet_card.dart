@@ -1,26 +1,19 @@
+// lib/components/pet_card.dart
+
 import 'package:flutter/material.dart';
+import 'package:teste_app/Models/pets_model.dart';
+import 'package:teste_app/services/favorites_service.dart';
 
 class PetCard extends StatelessWidget {
-  final String name;
-  final String gender; // 'm' or 'f'
-  final String place;
-  final String age;
-  final List<String> tags;
-  final String imageUrl;
+  final Pet pet;
+  final VoidCallback onFavoriteToggle;
 
-  const PetCard({
-    Key? key,
-    required this.name,
-    required this.gender,
-    required this.place,
-    required this.age,
-    required this.tags,
-    required this.imageUrl,
-  }) : super(key: key);
+  const PetCard({Key? key, required this.pet, required this.onFavoriteToggle})
+    : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    final cardRadius = 16.0;
+    const cardRadius = 16.0;
 
     return Material(
       elevation: 3,
@@ -33,13 +26,13 @@ class PetCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // imagem com canto arredondado
+            // Imagem com canto arredondado
             ClipRRect(
               borderRadius: BorderRadius.vertical(
                 top: Radius.circular(cardRadius),
               ),
               child: Image.network(
-                imageUrl,
+                pet.imagens.first, // Pega a primeira imagem da lista
                 height: 130,
                 width: double.infinity,
                 fit: BoxFit.cover,
@@ -51,7 +44,7 @@ class PetCard extends StatelessWidget {
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // nome e ícone de gênero
+                  // Nome, local e idade
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -59,30 +52,33 @@ class PetCard extends StatelessWidget {
                         Row(
                           children: [
                             Text(
-                              name,
-                              style: TextStyle(fontWeight: FontWeight.w700),
+                              pet.nome,
+                              style: const TextStyle(
+                                fontWeight: FontWeight.w700,
+                              ),
                             ),
-                            SizedBox(width: 6),
+                            const SizedBox(width: 6),
                             Icon(
-                              gender == 'm' ? Icons.male : Icons.female,
+                              pet.sexo == 'm' ? Icons.male : Icons.female,
                               size: 16,
-                              color: gender == 'm'
+                              color: pet.sexo == 'm'
                                   ? Colors.blueAccent
                                   : Colors.pinkAccent,
                             ),
                           ],
                         ),
-                        SizedBox(height: 4),
+                        const SizedBox(height: 4),
                         Text(
-                          "($place)",
+                          "(${pet.bairro}, ${pet.cidade})",
                           style: TextStyle(
                             fontSize: 12,
                             color: Colors.grey[600],
                           ),
+                          overflow: TextOverflow.ellipsis,
                         ),
-                        SizedBox(height: 4),
+                        const SizedBox(height: 4),
                         Text(
-                          age,
+                          '${pet.idade} ano(s)',
                           style: TextStyle(
                             fontSize: 12,
                             color: Colors.grey[700],
@@ -92,24 +88,38 @@ class PetCard extends StatelessWidget {
                     ),
                   ),
 
-                  // coração (favorito)
-                  Icon(
-                    Icons.favorite_border,
-                    size: 20,
-                    color: Colors.grey[700],
+                  // ✅ ÍCONE DE CORAÇÃO REATIVO ✅
+                  // Usamos o ValueListenableBuilder para que o ícone se atualize
+                  // sozinho sempre que a lista de favoritos mudar.
+                  ValueListenableBuilder(
+                    valueListenable: FavoritesService.favorites,
+                    builder: (context, favoritePets, _) {
+                      final isFavorite = FavoritesService.isFavorite(pet);
+
+                      return IconButton(
+                        icon: Icon(
+                          isFavorite ? Icons.favorite : Icons.favorite_border,
+                          color: isFavorite
+                              ? Colors.redAccent
+                              : Colors.grey[700],
+                        ),
+                        iconSize: 20,
+                        onPressed: onFavoriteToggle,
+                      );
+                    },
                   ),
                 ],
               ),
             ),
 
-            // tags (chips)
+            // Tags (chips)
             Flexible(
               child: Padding(
                 padding: const EdgeInsets.fromLTRB(10, 0, 10, 10),
                 child: Wrap(
                   spacing: 6,
                   runSpacing: 6,
-                  children: tags.map((t) => _smallTag(t)).toList(),
+                  children: pet.tags.map((t) => _smallTag(t)).toList(),
                 ),
               ),
             ),
@@ -119,14 +129,17 @@ class PetCard extends StatelessWidget {
     );
   }
 
-    Widget _smallTag(String text) {
-      return Container(
-        padding: EdgeInsets.symmetric(horizontal: 8, vertical: 6),
-        decoration: BoxDecoration(
-          color: Color(0xFFb3e0db),
-          borderRadius: BorderRadius.circular(12),
-        ),
-        child: Text(text, style: TextStyle(fontSize: 11, color: Colors.black87)),
-      );
+  Widget _smallTag(String text) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+      decoration: BoxDecoration(
+        color: const Color(0xFFb3e0db),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Text(
+        text,
+        style: const TextStyle(fontSize: 11, color: Colors.black87),
+      ),
+    );
   }
 }

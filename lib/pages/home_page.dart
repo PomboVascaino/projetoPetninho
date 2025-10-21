@@ -5,15 +5,7 @@ import '../components/bottom_menu.dart';
 import '../components/pet_catalog.dart';
 import '../components/categories.dart';
 import '../components/location_widget.dart';
-
-// Simulação de componentes que não foram fornecidos:
-class AppDrawer extends StatelessWidget {
-  const AppDrawer({super.key});
-  @override
-  Widget build(BuildContext context) {
-    return const Drawer(child: Center(child: Text('Menu Lateral')));
-  }
-}
+import '../components/menu_drawer.dart';
 
 // =========================
 // HomePage
@@ -131,7 +123,7 @@ class _HomePageState extends State<HomePage> {
       backgroundColor: Colors.white,
       key: _scaffoldKey,
       appBar: AppHeader(title: "Adoção de Pets", scaffoldKey: _scaffoldKey),
-      drawer: const AppDrawer(),
+      drawer: const MenuDrawer(),
       body: _buildBody(_selectedIndex),
       bottomNavigationBar: BottomMenu(
         currentIndex: _selectedIndex,

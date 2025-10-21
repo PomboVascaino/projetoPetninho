@@ -1,184 +1,106 @@
+// lib/pages/favoritos_page.dart
+
 import 'package:flutter/material.dart';
-import '../components/favoritos_pet_card.dart'; // Card dos pets favoritos
-import '../components/header.dart' hide HomePage; // Header (AppHeader)
-import '../components/bottom_menu.dart'; // Footer (BottomMenu)
-import 'home_page.dart'; // Importa a HomePage para navegação
+import 'package:teste_app/Models/pets_model.dart';
+import 'package:teste_app/pages/pet_perfil_page.dart'; // ✅ 1. Importe a página de perfil do pet.
+import '../services/favorites_service.dart';
+import '../components/header.dart' hide HomePage;
+import '../components/bottom_menu.dart';
+import 'home_page.dart';
+import '../components/favorite_list_item.dart';
+import '../components/menu_drawer.dart';
 
-// Drawer lateral (menu)
-class AppDrawer extends StatelessWidget {
-  const AppDrawer({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return const Drawer(
-      child: Center(
-        child: Text('Menu Lateral'),
-      ),
-    );
-  }
-}
-
-// Página de Favoritos
-class FavoritosPage extends StatefulWidget {
+class FavoritosPage extends StatelessWidget {
   const FavoritosPage({Key? key}) : super(key: key);
 
   @override
-  State<FavoritosPage> createState() => _FavoritosPageState();
-}
-
-class _FavoritosPageState extends State<FavoritosPage> {
-  final GlobalKey<AnimatedListState> _listKey = GlobalKey<AnimatedListState>();
-  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
-
-  // Índice do menu inferior (3 representa "Favoritos")
-  int _selectedIndex = 3;
-
-  // Lista de favoritos
-  List<Map<String, dynamic>> favoritos = [
-    {
-      'nome': 'Crystal',
-      'cidade': 'Cachoeirinha (SP)',
-      'idade': '1 ano',
-      'imagem': 'https://images.dog.ceo/breeds/hound-afghan/n02088094_1003.jpg',
-      'sexo': 'F',
-    },
-    {
-      'nome': 'Thor',
-      'cidade': 'Porto Alegre (RS)',
-      'idade': '2 anos',
-      'imagem': 'https://images.dog.ceo/breeds/husky/n02110185_1469.jpg',
-      'sexo': 'M',
-    },
-    {
-      'nome': 'Maya',
-      'cidade': 'Curitiba (PR)',
-      'idade': '3 anos',
-      'imagem': 'https://images.dog.ceo/breeds/beagle/n02088364_11136.jpg',
-      'sexo': 'F',
-    },
-  ];
-
-  // Função para remover um favorito
-  void _removerFavorito(int index) {
-    final removedItem = favoritos[index];
-    favoritos.removeAt(index);
-
-    _listKey.currentState?.removeItem(
-      index,
-      (context, animation) => SizeTransition(
-        sizeFactor: animation,
-        child: FavoritePetCard(
-          nome: removedItem['nome'],
-          cidade: removedItem['cidade'],
-          idade: removedItem['idade'],
-          imagem: removedItem['imagem'],
-          sexo: removedItem['sexo'],
-        ),
-      ),
-      duration: const Duration(milliseconds: 400),
-    );
-
-    ScaffoldMessenger.of(context).clearSnackBars();
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        backgroundColor: const Color(0xFFB3E0DB),
-        content: Text('${removedItem['nome']} removido dos favoritos'),
-        action: SnackBarAction(
-          label: 'Desfazer',
-          textColor: Colors.red,
-          onPressed: () {
-            setState(() {
-              favoritos.insert(index, removedItem);
-              _listKey.currentState?.insertItem(index);
-            });
-          },
-        ),
-        duration: const Duration(seconds: 3),
-      ),
-    );
-  }
-
-  // 🔹 Quando um item do menu inferior for tocado
-  void _onItemTapped(int index) {
-    if (index == 0) {
-      // ✅ Se o usuário tocar em "Home", volta para a HomePage
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => const HomePage()),
-      );
-    } else {
-      // Apenas atualiza o índice se for outro botão
-      setState(() {
-        _selectedIndex = index;
-      });
-    }
-  }
-
-  @override
   Widget build(BuildContext context) {
-    const corPrincipal = Color(0xFFB3E0DB);
+    final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+    const int _selectedIndex = 3; // Índice de "Favoritos" no menu
+
+    void _onItemTapped(int index) {
+      if (index == 0) {
+        // Se tocar em "Início", volta para a HomePage
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const HomePage()),
+        );
+      }
+      // Outros itens do menu podem ser tratados aqui se necessário.
+    }
+
+    void _removerFavorito(Pet pet, BuildContext context) {
+      // Usamos o método unificado toggleFavorite
+      FavoritesService.toggleFavorite(pet);
+
+      // Mostra uma confirmação na tela
+      ScaffoldMessenger.of(context).clearSnackBars();
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          backgroundColor: const Color(0xFFB3E0DB),
+          content: Text('${pet.nome} removido dos favoritos'),
+          duration: const Duration(seconds: 2),
+        ),
+      );
+    }
 
     return Scaffold(
       key: _scaffoldKey,
-      backgroundColor: Colors.grey[100],
-
-      // HEADER (AppHeader)
-      appBar: AppHeader(
-        title: "Meus Favoritos",
-        scaffoldKey: _scaffoldKey,
-      ),
-
-      // MENU LATERAL
-      drawer: const AppDrawer(),
-
-      // CORPO PRINCIPAL
-      body: favoritos.isEmpty
-          ? const Center(
+      backgroundColor: Colors.white,
+      appBar: AppHeader(title: "Meus Favoritos", scaffoldKey: _scaffoldKey),
+      drawer: const MenuDrawer(),
+      // 2. Usamos o ValueListenableBuilder para ouvir as mudanças no FavoritesService
+      body: ValueListenableBuilder<List<Pet>>(
+        valueListenable: FavoritesService.favorites,
+        builder: (context, favoritos, _) {
+          // Se a lista de favoritos estiver vazia, mostramos a mensagem.
+          if (favoritos.isEmpty) {
+            return const Center(
               child: Text(
                 "Nenhum favorito no momento 😢",
                 style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
               ),
-            )
-          : AnimatedList(
-              key: _listKey,
-              initialItemCount: favoritos.length,
-              padding: const EdgeInsets.all(12),
-              itemBuilder: (context, index, animation) {
-                final pet = favoritos[index];
-                return SizeTransition(
-                  sizeFactor: animation,
-                  child: Dismissible(
-                    key: ValueKey(pet['nome'] + index.toString()),
-                    direction: DismissDirection.endToStart,
-                    onDismissed: (_) => _removerFavorito(index),
-                    background: Container(
-                      alignment: Alignment.centerRight,
-                      padding: const EdgeInsets.symmetric(horizontal: 20),
-                      margin: const EdgeInsets.symmetric(vertical: 8),
-                      decoration: BoxDecoration(
-                        color: Colors.red.shade100,
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                      child: const Icon(
-                        Icons.delete,
-                        color: Colors.red,
-                        size: 28,
-                      ),
-                    ),
-                    child: FavoritePetCard(
-                      nome: pet['nome'],
-                      cidade: pet['cidade'],
-                      idade: pet['idade'],
-                      imagem: pet['imagem'],
-                      sexo: pet['sexo'],
-                      onFavoritoTap: () => _removerFavorito(index),
-                    ),
-                  ),
-                );
-              },
-            ),
+            );
+          }
 
-      // FOOTER (BottomMenu)
+          // Se houver favoritos, construímos a lista.
+          return ListView.builder(
+            padding: const EdgeInsets.all(12),
+            itemCount: favoritos.length,
+            itemBuilder: (context, index) {
+              final pet = favoritos[index];
+
+              return Dismissible(
+                key: ValueKey(pet.nome), // Chave única para o item
+                direction: DismissDirection.endToStart,
+                onDismissed: (_) => _removerFavorito(pet, context),
+                background: Container(
+                  alignment: Alignment.centerRight,
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  margin: const EdgeInsets.symmetric(vertical: 8),
+                  decoration: BoxDecoration(
+                    color: Colors.red.shade100,
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: const Icon(Icons.delete, color: Colors.red, size: 28),
+                ),
+                child: FavoriteListItem(
+                  pet: pet,
+                  onFavoriteTap: () => _removerFavorito(pet, context),
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => PetPerfilPage(pet: pet),
+                      ),
+                    );
+                  },
+                ),
+              );
+            },
+          );
+        },
+      ),
       bottomNavigationBar: BottomMenu(
         currentIndex: _selectedIndex,
         onTap: _onItemTapped,
