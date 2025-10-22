@@ -1,6 +1,7 @@
 // lib/components/menu_drawer.dart
 
 import 'package:flutter/material.dart';
+import 'package:teste_app/pages/ongs_page.dart';
 import 'package:teste_app/utils/app_routes.dart';
 import '../pages/chat_page.dart';
 
@@ -60,8 +61,20 @@ class MenuDrawer extends StatelessWidget {
             context: context,
             icon: Icons.volunteer_activism_outlined,
             text: 'Ongs',
+            // CORREÇÃO AQUI: Usar a rota correta para ONGs
+            route: AppRoutes.ongs,
             onTap: () {
-              Navigator.pop(context);
+              // CORREÇÃO AQUI: Verificar se a rota atual é a de ONGs
+              if (currentRoute != AppRoutes.ongs) {
+                Navigator.pop(context); // Fecha o drawer primeiro
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const OngsPage()),
+                );
+              } else {
+                // Se já estiver na página, apenas fecha o drawer
+                Navigator.pop(context);
+              }
             },
           ),
           _buildMenuItem(
