@@ -1,40 +1,29 @@
 // lib/components/pet_card.dart
 
+import 'package:cached_network_image/cached_network_image.dart'; // <<< ADICIONE ou GARANTA que existe
 import 'package:flutter/material.dart';
-import '../Models/pets_model.dart';
-import '../services/favorites_service.dart';
+import 'package:teste_app/Models/pets_model.dart';
+import 'package:teste_app/services/favorites_service.dart';
 
-// 1. Convertido para StatefulWidget para gerenciar o estado do coração
-class PetCard extends StatefulWidget {
-  // 2. Agora recebe o objeto Pet completo e uma função de callback
+class PetCard extends StatelessWidget {
   final Pet pet;
   final VoidCallback onFavoriteToggle;
 
-  const PetCard({
-    Key? key,
-    required this.pet,
-    required this.onFavoriteToggle,
-  }) : super(key: key);
-
-  @override
-  State<PetCard> createState() => _PetCardState();
-}
-
-class _PetCardState extends State<PetCard> {
-  bool _isFavorite = false;
-
-  // 3. Verifica o estado inicial do favorito quando o widget é construído
-  @override
-  void initState() {
-    super.initState();
-    _isFavorite = FavoritesService.isFavorite(widget.pet);
-  }
+  // --- CONSTRUTOR CORRIGIDO ---
+  // Removemos os parâmetros antigos que não são mais necessários
+  const PetCard({Key? key, required this.pet, required this.onFavoriteToggle})
+    : super(key: key);
+  // --- FIM DO CONSTRUTOR CORRIGIDO ---
 
   @override
   Widget build(BuildContext context) {
-    final cardRadius = 16.0;
-    // Extraindo dados do widget.pet para facilitar a leitura
-    final pet = widget.pet;
+    const cardRadius = 16.0;
+    // --- ACESSO SEGURO À IMAGEM ---
+    // Pega a primeira imagem SOMENTE se a lista não estiver vazia
+    final String? firstImage = pet.imagens.isNotEmpty
+        ? pet.imagens.first
+        : null;
+    // --- FIM DO ACESSO SEGURO ---
 
     return Material(
       elevation: 3,
@@ -47,33 +36,79 @@ class _PetCardState extends State<PetCard> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // --- USO SEGURO DA IMAGEM COM CACHE ---
             ClipRRect(
               borderRadius: BorderRadius.vertical(
                 top: Radius.circular(cardRadius),
               ),
-              child: Image.network(
-                pet.imagens.first,
-                height: 130,
-                width: double.infinity,
-                fit: BoxFit.cover,
-              ),
+              // Verifica se firstImage não é nulo antes de usar
+              child:
+                  (firstImage != null &&
+                      firstImage
+                          .isNotEmpty) // Adiciona checagem de string vazia
+                  ? CachedNetworkImage(
+                      // Usa CachedNetworkImage
+                      imageUrl: firstImage,
+                      height: 130,
+                      width: double.infinity,
+                      fit: BoxFit.cover,
+                      placeholder: (context, url) => Container(
+                        height: 130,
+                        color: Colors.grey[200],
+                        child: const Center(
+                          child: CircularProgressIndicator(strokeWidth: 2.0),
+                        ),
+                      ),
+                      errorWidget: (context, url, error) => Container(
+                        height: 130,
+                        color: Colors.grey[300],
+                        child: const Icon(
+                          Icons.broken_image,
+                          color: Colors.grey,
+                        ),
+                      ),
+                    )
+                  : Container(
+                      // Widget de fallback se não houver imagem
+                      height: 130,
+                      decoration: BoxDecoration(
+                        color: Colors.grey[200],
+                        borderRadius: BorderRadius.vertical(
+                          top: Radius.circular(cardRadius),
+                        ),
+                      ),
+                      child: const Center(
+                        child: Icon(Icons.pets, color: Colors.grey, size: 40),
+                      ),
+                    ),
             ),
+
+            // --- FIM DO USO SEGURO DA IMAGEM ---
             Padding(
               padding: const EdgeInsets.fromLTRB(10, 8, 10, 6),
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  // Nome, local e idade
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Row(
                           children: [
-                            Text(
-                              pet.nome,
-                              style: TextStyle(fontWeight: FontWeight.w700),
+                            Flexible(
+                              // Adicionado Flexible para evitar overflow
+                              child: Text(
+                                pet.nome,
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.w700,
+                                ),
+                                overflow:
+                                    TextOverflow.ellipsis, // Corta nome longo
+                                maxLines: 1,
+                              ),
                             ),
-                            SizedBox(width: 6),
+                            const SizedBox(width: 6),
                             Icon(
                               pet.sexo == 'm' ? Icons.male : Icons.female,
                               size: 16,
@@ -83,17 +118,19 @@ class _PetCardState extends State<PetCard> {
                             ),
                           ],
                         ),
-                        SizedBox(height: 4),
+                        const SizedBox(height: 4),
                         Text(
-                          "(${pet.bairro})",
+                          "(${pet.bairro}, ${pet.cidade})",
                           style: TextStyle(
                             fontSize: 12,
                             color: Colors.grey[600],
                           ),
+                          overflow: TextOverflow.ellipsis,
+                          maxLines: 1,
                         ),
-                        SizedBox(height: 4),
+                        const SizedBox(height: 4),
                         Text(
-                          "${pet.idade} ano(s)",
+                          '${pet.idade} ${pet.idade == 1 ? "ano" : "anos"}', // Formatação
                           style: TextStyle(
                             fontSize: 12,
                             color: Colors.grey[700],
@@ -102,32 +139,37 @@ class _PetCardState extends State<PetCard> {
                       ],
                     ),
                   ),
-                  // 4. Ícone agora é um botão que controla o estado
-                  IconButton(
-                    padding: EdgeInsets.zero,
-                    constraints: BoxConstraints(),
-                    icon: Icon(
-                      _isFavorite ? Icons.favorite : Icons.favorite_border,
-                      color: _isFavorite ? Colors.red : Colors.grey[700],
-                      size: 22,
-                    ),
-                    onPressed: () {
-                      // 5. Atualiza o estado visual e chama a função de controle
-                      setState(() {
-                        _isFavorite = !_isFavorite;
-                      });
-                      widget.onFavoriteToggle();
+
+                  // Ícone de coração reativo
+                  ValueListenableBuilder<List<Pet>>(
+                    valueListenable: FavoritesService.favorites,
+                    builder: (context, favoritePets, _) {
+                      final isFavorite = FavoritesService.isFavorite(pet);
+                      return IconButton(
+                        icon: Icon(
+                          isFavorite ? Icons.favorite : Icons.favorite_border,
+                          color: isFavorite
+                              ? Colors.redAccent
+                              : Colors.grey[700],
+                        ),
+                        iconSize: 20,
+                        padding: EdgeInsets.zero,
+                        constraints: const BoxConstraints(),
+                        onPressed: onFavoriteToggle,
+                      );
                     },
                   ),
                 ],
               ),
             ),
+
+            // Tags (chips)
             Flexible(
               child: Padding(
                 padding: const EdgeInsets.fromLTRB(10, 0, 10, 10),
                 child: Wrap(
                   spacing: 6,
-                  runSpacing: 6,
+                  runSpacing: 4,
                   children: pet.tags.map((t) => _smallTag(t)).toList(),
                 ),
               ),
@@ -140,12 +182,17 @@ class _PetCardState extends State<PetCard> {
 
   Widget _smallTag(String text) {
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
-        color: Color(0xFFb3e0db),
+        color: const Color(0xFFb3e0db),
         borderRadius: BorderRadius.circular(12),
       ),
-      child: Text(text, style: TextStyle(fontSize: 11, color: Colors.black87)),
+      child: Text(
+        text,
+        style: const TextStyle(fontSize: 10, color: Colors.black87),
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+      ),
     );
   }
 }
