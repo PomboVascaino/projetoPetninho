@@ -153,8 +153,9 @@ class _HomePageState extends State<HomePage> {
     return Scaffold(
       backgroundColor: Colors.white,
       key: _scaffoldKey,
+      // Use o AppHeader (veja exemplo abaixo) - passe a scaffoldKey para que o botão abra o drawer
       appBar: AppHeader(title: "Adoção de Pets", scaffoldKey: _scaffoldKey),
-      drawer: const MenuDrawer(), // Use MenuDrawer se ele já existe
+      drawer: const MenuDrawer(), // <-- aqui está o novo menu lateral integrado
       body: _buildBody(_selectedIndex),
       bottomNavigationBar: BottomMenu(
         currentIndex: _selectedIndex,
