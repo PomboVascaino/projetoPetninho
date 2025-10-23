@@ -1,5 +1,3 @@
-// lib/components/menu_drawer.dart
-
 import 'package:flutter/material.dart';
 import 'package:teste_app/pages/ongs_page.dart';
 import 'package:teste_app/utils/app_routes.dart';
@@ -25,6 +23,7 @@ class MenuDrawer extends StatelessWidget {
           const SizedBox(height: 60),
 
           _buildSectionTitle('Opções'),
+
           _buildMenuItem(
             context: context,
             icon: Icons.pets,
@@ -40,6 +39,7 @@ class MenuDrawer extends StatelessWidget {
               }
             },
           ),
+
           _buildMenuItem(
             context: context,
             icon: Icons.smart_toy_outlined,
@@ -57,6 +57,7 @@ class MenuDrawer extends StatelessWidget {
               }
             },
           ),
+
           _buildMenuItem(
             context: context,
             icon: Icons.volunteer_activism_outlined,
@@ -77,6 +78,7 @@ class MenuDrawer extends StatelessWidget {
               }
             },
           ),
+
           _buildMenuItem(
             context: context,
             icon: Icons.sentiment_very_dissatisfied_outlined,
@@ -85,6 +87,7 @@ class MenuDrawer extends StatelessWidget {
               Navigator.pop(context);
             },
           ),
+
           _buildMenuItem(
             context: context,
             icon: Icons.search,
@@ -93,6 +96,7 @@ class MenuDrawer extends StatelessWidget {
               Navigator.pop(context);
             },
           ),
+
           _buildMenuItem(
             context: context,
             icon: Icons.favorite_border,
@@ -101,6 +105,7 @@ class MenuDrawer extends StatelessWidget {
               Navigator.pop(context);
             },
           ),
+
           _buildMenuItem(
             context: context,
             icon: Icons.health_and_safety_outlined,
@@ -112,20 +117,40 @@ class MenuDrawer extends StatelessWidget {
 
           const SizedBox(height: 20),
           _buildSectionTitle('Ajuda'),
+
+          // Botão "Entre em contato" (já feito)
           _buildMenuItem(
             context: context,
             icon: Icons.call_outlined,
             text: 'Entre em contato',
             onTap: () {
+              // 1. Fecha o menu lateral
               Navigator.pop(context);
+
+              // 2. Navega para a Página de Contato
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const PaginaContato()),
+              );
             },
           ),
+
+          // 2. ✅ MUDANÇA AQUI
           _buildMenuItem(
             context: context,
             icon: Icons.quiz_outlined,
             text: 'Perguntas Frequentes',
             onTap: () {
+              // 1. Fecha o menu lateral
               Navigator.pop(context);
+
+              // 2. Navega para a Página de Perguntas
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const PaginaPerguntas(),
+                ),
+              );
             },
           ),
         ],

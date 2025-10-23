@@ -37,4 +37,13 @@ class FavoritesService {
   static bool isFavorite(Pet pet) {
     return _favorites.value.any((p) => p.nome == pet.nome);
   }
+
+  // <--- MÉTODO ADICIONADO PARA CORRIGIR O ERRO DE CHAMADA --->
+  static void toggleFavorite(Pet pet) {
+    if (isFavorite(pet)) {
+      remove(pet);
+    } else {
+      add(pet);
+    }
+  }
 }
