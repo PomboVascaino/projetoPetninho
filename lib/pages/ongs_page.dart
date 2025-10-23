@@ -10,7 +10,8 @@ import 'package:teste_app/components/menu_drawer.dart';
 import 'package:teste_app/components/pet_card.dart';
 import 'package:teste_app/pages/ong_detail_page.dart';
 import 'package:teste_app/utils/app_routes.dart';
-import 'package:teste_app/components/bottom_menu.dart'; // Importação necessária
+import 'package:teste_app/components/bottom_menu.dart';
+import 'package:teste_app/components/pet_catalog.dart'; // Importa para ter acesso à lista `allPets`
 
 class OngsPage extends StatefulWidget {
   const OngsPage({super.key});
@@ -30,47 +31,14 @@ class _OngsPageState extends State<OngsPage> {
   }
 
   void _loadOngs() {
-    final List<Map<String, dynamic>> ongsData = [
+    // Esta lista agora define APENAS as ONGs, sem os pets
+    final List<Map<String, dynamic>> ongsMetadata = [
       {
         'id': '1',
         'name': 'Em prol do Amor',
         'logoUrl': 'https://i.imgur.com/U8A1B29.png',
         'headerImageUrl': 'https://i.imgur.com/8a1S6f8.jpeg',
         'color': 0xFFFBC02D,
-        'pets': [
-          {
-            "name": "Theo 1",
-            "gender": "m",
-            "place": "Barra Funda - SP",
-            "age": "8 meses",
-            "tags": ["Brincalhão", "Dócil"],
-            "img": "https://i.imgur.com/IyLen7R.png",
-          },
-          {
-            "name": "Theo 2",
-            "gender": "m",
-            "place": "Barra Funda - SP",
-            "age": "8 meses",
-            "tags": ["Agitado", "Amoroso"],
-            "img": "https://i.imgur.com/IyLen7R.png",
-          },
-          {
-            "name": "Theo 3",
-            "gender": "m",
-            "place": "Barra Funda - SP",
-            "age": "8 meses",
-            "tags": ["Dócil", "Calmo"],
-            "img": "https://i.imgur.com/IyLen7R.png",
-          },
-          {
-            "name": "Theo 4",
-            "gender": "m",
-            "place": "Barra Funda - SP",
-            "age": "9 meses",
-            "tags": ["Energético"],
-            "img": "https://i.imgur.com/IyLen7R.png",
-          },
-        ],
       },
       {
         'id': '2',
@@ -78,47 +46,23 @@ class _OngsPageState extends State<OngsPage> {
         'logoUrl': 'https://i.imgur.com/T5Nocco.png',
         'headerImageUrl': 'https://i.imgur.com/r6d0g2e.jpeg',
         'color': 0xFF8D6E63,
-        'pets': [
-          {
-            "name": "Crystal 1",
-            "gender": "f",
-            "place": "Cachoeirinha - SP",
-            "age": "1 ano",
-            "tags": ["Passeio", "Calma"],
-            "img": "https://i.imgur.com/ZbttlFX.png",
-          },
-          {
-            "name": "Crystal 2",
-            "gender": "f",
-            "place": "Cachoeirinha - SP",
-            "age": "1 ano",
-            "tags": ["Dócil", "Crianças"],
-            "img": "https://i.imgur.com/ZbttlFX.png",
-          },
-          {
-            "name": "Crystal 3",
-            "gender": "f",
-            "place": "Cachoeirinha - SP",
-            "age": "1 ano",
-            "tags": ["Castrada", "Vacinada"],
-            "img": "https://i.imgur.com/ZbttlFX.png",
-          },
-        ],
       },
     ];
 
-    _ongs = ongsData.map((ongData) {
-      final List<dynamic> petsRaw = ongData['pets'] ?? [];
-      final List<Pet> pets = petsRaw
-          .map((petData) => _createPetFromData(petData))
+    // Mapeia a metadata das ONGs e filtra os pets para cada uma
+    _ongs = ongsMetadata.map((ongData) {
+      // Filtra a lista global `allPets` para encontrar os pets desta ONG
+      final List<Pet> ongPets = allPets
+          .where((pet) => pet.ong == ongData['name'])
           .toList();
+
       return Ong(
         id: ongData['id'] ?? '',
         name: ongData['name'] ?? 'ONG Desconhecida',
         logoUrl: ongData['logoUrl'] ?? '',
         headerImageUrl: ongData['headerImageUrl'] ?? '',
         color: Color(ongData['color'] ?? 0xFF9E9E9E),
-        pets: pets,
+        pets: ongPets, // Atribui a lista de pets filtrada dinamicamente
       );
     }).toList();
   }
@@ -135,21 +79,25 @@ class _OngsPageState extends State<OngsPage> {
         itemCount: _ongs.length,
         itemBuilder: (context, index) {
           final ong = _ongs[index];
+          // Se a ONG não tiver pets, não mostra a seção dela
+          if (ong.pets.isEmpty) {
+            return const SizedBox.shrink();
+          }
           return _buildOngSection(ong);
         },
       ),
-      // --- CÓDIGO DO BOTTOM MENU CORRIGIDO ---
       bottomNavigationBar: BottomMenu(
-        currentIndex: -1, // Nenhum item está selecionado
-        forceAllOff: true, // Garante que todos os ícones fiquem "apagados"
+        currentIndex: -1,
+        forceAllOff: true,
         onTap: (index) {
-          // AÇÃO CORRETA: Apenas fecha a tela atual (OngsPage)
-          // e volta para a tela anterior (HomePage).
           Navigator.pop(context);
         },
       ),
     );
   }
+
+  // O resto do código (widgets de build, funções auxiliares) permanece o mesmo
+  // pois já está preparado para receber os dados dinamicamente.
 
   Widget _buildOngSection(Ong ong) {
     final List<Pet> previewPets = ong.pets.take(3).toList();
@@ -246,44 +194,5 @@ class _OngsPageState extends State<OngsPage> {
         ],
       ),
     );
-  }
-
-  Pet _createPetFromData(Map<String, dynamic> petData) {
-    final List<String> imageUrls = [];
-    if (petData['img'] != null &&
-        petData['img'] is String &&
-        (petData['img'] as String).isNotEmpty) {
-      imageUrls.add(petData['img']);
-    }
-    return Pet(
-      nome: petData['name'] ?? '?',
-      imagens: imageUrls,
-      sexo: petData['gender'] ?? 'n/a',
-      raca: petData['raca'] ?? 'SRD',
-      idade: _parseIdade(petData['age']),
-      tags: List<String>.from(petData['tags'] ?? []),
-      descricao: petData['descricao'] ?? '',
-      bairro: _parseLocal(petData['place'])[0],
-      cidade: _parseLocal(petData['place'])[1],
-      telefone: petData['telefone'] ?? '',
-    );
-  }
-
-  int _parseIdade(String? ageString) {
-    if (ageString == null) return 0;
-    final parts = ageString.split(' ');
-    if (parts.length > 1 &&
-        (parts[1].toLowerCase().contains('mes') ||
-            parts[1].toLowerCase().contains('mês'))) {
-      return 0;
-    }
-    return int.tryParse(parts[0]) ?? 0;
-  }
-
-  List<String> _parseLocal(String? placeString) {
-    if (placeString == null) return ['?', '?'];
-    final parts = placeString.split(' - ');
-    if (parts.length == 2) return [parts[0].trim(), parts[1].trim()];
-    return [placeString, '?'];
   }
 }

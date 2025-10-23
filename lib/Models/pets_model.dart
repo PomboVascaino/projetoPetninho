@@ -1,53 +1,76 @@
+// lib/models/pets_model.dart
+
 class Pet {
-  late String nome;
-  late List<String> imagens;
-  late String sexo;
-  late String raca;
-  late int idade;
-  late List<String> tags;
-  late String descricao;
-  late String bairro;
-  late String cidade;
-  late String telefone;
+  final String nome;
+  final List<String> imagens;
+  final String sexo;
+  final String raca;
+  final String idade; // Mantido como String
+  final List<String> tags;
+  final String descricao;
+  final String bairro;
+  final String cidade;
+  final String telefone;
+  final String? ong;
+  final bool encontrado;
+  bool isFavorite;
 
   Pet({
     required this.nome,
-    required this.imagens,
+    this.imagens = const [],
     required this.sexo,
     required this.raca,
-    required this.idade,
-    required this.tags,
-    required this.descricao,
+    required this.idade, // Espera uma String
+    this.tags = const [],
+    this.descricao = '',
     required this.bairro,
     required this.cidade,
-    required this.telefone,
+    this.telefone = '',
+    this.ong,
+    this.encontrado = false,
+    this.isFavorite = false,
   });
 
-  Pet.fromJson(Map<String, dynamic> json) {
-    nome = json['nome'];
-    imagens = json['imagem'].cast<String>();
-    sexo = json['sexo'];
-    raca = json['raca'];
-    idade = json['idade'];
-    tags = json['tags'].cast<String>();
-    descricao = json['descricao'];
-    bairro = json['bairro'];
-    cidade = json['cidade'];
-    telefone = json['telefone'];
+  String get imagemPrincipal {
+    if (imagens.isNotEmpty && imagens.first.isNotEmpty) {
+      return imagens.first;
+    }
+    return 'https://i.imgur.com/8f9f8f9.png'; // Placeholder
+  }
+
+  // --- CORREÇÃO AQUI ---
+  // A idade já é uma string formatada, então apenas retornamos ela.
+  String get idadeFormatada => idade;
+
+  factory Pet.fromJson(Map<String, dynamic> json) {
+    return Pet(
+      nome: json['nome'] ?? '?',
+      imagens: List<String>.from(json['imagens'] ?? []),
+      sexo: json['sexo'] ?? 'n/a',
+      raca: json['raca'] ?? 'SRD',
+      idade: json['idade'] ?? 'Não informada', // Corrigido para String
+      tags: List<String>.from(json['tags'] ?? []),
+      descricao: json['descricao'] ?? '',
+      bairro: json['bairro'] ?? '?',
+      cidade: json['cidade'] ?? '?',
+      telefone: json['telefone'] ?? '',
+      ong: json['ong'],
+    );
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = <String, dynamic>{};
-    data['nome'] = nome;
-    data['imagem'] = imagens;
-    data['sexo'] = sexo;
-    data['raca'] = raca;
-    data['idade'] = idade;
-    data['tags'] = tags;
-    data['descricao'] = descricao;
-    data['bairro'] = bairro;
-    data['cidade'] = cidade;
-    data['telefone'] = telefone;
-    return data;
+    return {
+      'nome': nome,
+      'imagens': imagens,
+      'sexo': sexo,
+      'raca': raca,
+      'idade': idade,
+      'tags': tags,
+      'descricao': descricao,
+      'bairro': bairro,
+      'cidade': cidade,
+      'telefone': telefone,
+      'ong': ong,
+    };
   }
 }

@@ -10,9 +10,9 @@ import '../pages/chat_page.dart';
 
 class MenuDrawer extends StatelessWidget {
   final String? currentRoute;
+  final VoidCallback? onNavigateToRegister;
 
-  const MenuDrawer({super.key, this.currentRoute});
-
+  const MenuDrawer({super.key, this.currentRoute, this.onNavigateToRegister});
   @override
   Widget build(BuildContext context) {
     return Drawer(
