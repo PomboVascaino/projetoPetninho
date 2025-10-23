@@ -28,6 +28,10 @@
 	<string>LaunchScreen</string>
 	<key>UIMainStoryboardFile</key>
 	<string>Main</string>
+	<key>NSCameraUsageDescription</key>
+	<string>Esse app precisar acessar a camera para capturar fotos</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Esse app precisar acessar a galeria para selecionar fotos</string>
 	<key>UISupportedInterfaceOrientations</key>
 	<array>
 		<string>UIInterfaceOrientationPortrait</string>

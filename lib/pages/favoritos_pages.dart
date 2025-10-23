@@ -2,13 +2,15 @@
 
 import 'package:flutter/material.dart';
 import 'package:teste_app/Models/pets_model.dart';
-import 'package:teste_app/pages/pet_perfil_page.dart'; // ✅ 1. Importe a página de perfil do pet.
+import 'package:teste_app/pages/pet_perfil_page.dart'; 
 import '../services/favorites_service.dart';
 import '../components/header.dart' hide HomePage;
 import '../components/bottom_menu.dart';
 import 'home_page.dart';
 import '../components/favorite_list_item.dart';
 import '../components/menu_drawer.dart';
+import 'package:teste_app/pages/home_page.dart';
+import 'package:teste_app/pages/favoritos_pages.dart';
 
 class FavoritosPage extends StatefulWidget {
   const FavoritosPage({Key? key}) : super(key: key);

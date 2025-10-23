@@ -1,6 +1,6 @@
-// lib/components/menu_drawer.dart
-
 import 'package:flutter/material.dart';
+import 'package:teste_app/pages/contatos.dart';
+import 'package:teste_app/pages/perguntas_page.dart';
 
 class MenuDrawer extends StatelessWidget {
   const MenuDrawer({super.key});
@@ -10,22 +10,20 @@ class MenuDrawer extends StatelessWidget {
     return Drawer(
       backgroundColor: Colors.white,
       child: ListView(
-        // Remove o padding padrão do ListView
         padding: EdgeInsets.zero,
         children: <Widget>[
-          // Um cabeçalho simples, pode ser customizado depois
           const SizedBox(height: 60),
-
-          // Seção "Opções"
           _buildSectionTitle('Opções'),
+
           _buildMenuItem(
             icon: Icons.pets,
             text: 'Pets',
             onTap: () {
-              // TODO: Implementar navegação para a página de Pets
-              Navigator.pop(context); // Fecha o drawer
+              Navigator.pop(context);
+              // Exemplo: Navigator.push(... para PetsPage) caso exista
             },
           ),
+
           _buildMenuItem(
             icon: Icons.smart_toy_outlined,
             text: 'Bidu Assistente',
@@ -33,6 +31,7 @@ class MenuDrawer extends StatelessWidget {
               Navigator.pop(context);
             },
           ),
+
           _buildMenuItem(
             icon: Icons.volunteer_activism_outlined,
             text: 'Ongs',
@@ -40,6 +39,7 @@ class MenuDrawer extends StatelessWidget {
               Navigator.pop(context);
             },
           ),
+
           _buildMenuItem(
             icon: Icons.sentiment_very_dissatisfied_outlined,
             text: 'Perdi um pet',
@@ -47,6 +47,7 @@ class MenuDrawer extends StatelessWidget {
               Navigator.pop(context);
             },
           ),
+
           _buildMenuItem(
             icon: Icons.search,
             text: 'Encontrei um pet',
@@ -54,6 +55,7 @@ class MenuDrawer extends StatelessWidget {
               Navigator.pop(context);
             },
           ),
+
           _buildMenuItem(
             icon: Icons.favorite_border,
             text: 'Namoro Pet',
@@ -61,6 +63,7 @@ class MenuDrawer extends StatelessWidget {
               Navigator.pop(context);
             },
           ),
+
           _buildMenuItem(
             icon: Icons.health_and_safety_outlined,
             text: 'Dicas e cuidados',
@@ -69,21 +72,40 @@ class MenuDrawer extends StatelessWidget {
             },
           ),
 
-          const SizedBox(height: 20), // Espaçamento entre as seções
-          // Seção "Ajuda"
+          const SizedBox(height: 20),
           _buildSectionTitle('Ajuda'),
+
+          // Botão "Entre em contato" (já feito)
           _buildMenuItem(
             icon: Icons.call_outlined,
             text: 'Entre em contato',
             onTap: () {
+              // 1. Fecha o menu lateral
               Navigator.pop(context);
+
+              // 2. Navega para a Página de Contato
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const PaginaContato()),
+              );
             },
           ),
+
+          // 2. ✅ MUDANÇA AQUI
           _buildMenuItem(
             icon: Icons.quiz_outlined,
             text: 'Perguntas Frequentes',
             onTap: () {
+              // 1. Fecha o menu lateral
               Navigator.pop(context);
+
+              // 2. Navega para a Página de Perguntas
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const PaginaPerguntas(),
+                ),
+              );
             },
           ),
         ],
@@ -91,7 +113,6 @@ class MenuDrawer extends StatelessWidget {
     );
   }
 
-  // Widget auxiliar para criar os títulos das seções
   Widget _buildSectionTitle(String title) {
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
@@ -106,7 +127,6 @@ class MenuDrawer extends StatelessWidget {
     );
   }
 
-  // Widget auxiliar para criar cada item do menu, evitando repetição de código
   Widget _buildMenuItem({
     required IconData icon,
     required String text,
