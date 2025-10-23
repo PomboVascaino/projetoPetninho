@@ -1,26 +1,20 @@
+// lib/pages/pet_perfil_page.dart
+
 import 'package:flutter/material.dart';
 import 'package:teste_app/Models/pets_model.dart';
 import 'package:teste_app/components/menu_drawer.dart';
-// Note: Assumindo que AppHeader e BottomMenu são componentes existentes
-// Se não existirem, você deve criá-los ou usar widgets placeholder
+import 'package:teste_app/components/pet_catalog.dart';
+import 'package:teste_app/pages/favoritos_pages.dart';
+// <-- IMPORTAÇÃO NECESSÁRIA
 import '../components/header.dart';
 import '../components/bottom_menu.dart';
 import '../services/favorites_service.dart';
 import '../components/partial_search_modal.dart.dart'; 
 
-// Assumindo que AppDrawer é um componente existente
-
 class PetPerfilPage extends StatefulWidget {
-  // 💡 REMOVIDO: onNavigateBack não é mais necessário, pois usaremos Navigator.pop
-  // final VoidCallback onNavigateBack;
-
   final Pet pet;
 
-  const PetPerfilPage({
-    super.key,
-    required this.pet,
-    // required this.onNavigateBack, // Removido
-  });
+  const PetPerfilPage({super.key, required this.pet});
 
   @override
   State<PetPerfilPage> createState() => _PetPerfilPageState();
@@ -29,12 +23,10 @@ class PetPerfilPage extends StatefulWidget {
 class _PetPerfilPageState extends State<PetPerfilPage> {
   final PageController _pageController = PageController(initialPage: 0);
   int _currentPage = 0;
-
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
   Widget _buildTag(String text) {
     const Color tagColor = Color(0xFFb3e0db);
-
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       margin: const EdgeInsets.only(right: 8, bottom: 8),
@@ -58,7 +50,7 @@ class _PetPerfilPageState extends State<PetPerfilPage> {
     showDialog(
       context: context,
       barrierDismissible: true,
-      barrierColor: Colors.black.withValues(alpha: 0.85),
+      barrierColor: Colors.black.withOpacity(0.85),
       useSafeArea: true,
       builder: (BuildContext context) {
         return Center(
@@ -87,19 +79,13 @@ class _PetPerfilPageState extends State<PetPerfilPage> {
     return Scaffold(
       key: _scaffoldKey,
       backgroundColor: Colors.white,
-
-      // O AppHeader é mantido
       appBar: AppHeader(title: "Detalhes do Pet", scaffoldKey: _scaffoldKey),
-
-      // DRAWER ADICIONADO AQUI
       drawer: const MenuDrawer(),
-
       body: SingleChildScrollView(
         padding: const EdgeInsets.only(left: 16.0, right: 16.0, top: 16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // --- Carrossel com modal de imagem ---
             SizedBox(
               height: 300,
               child: Column(
@@ -127,10 +113,7 @@ class _PetPerfilPageState extends State<PetPerfilPage> {
                                 child: Container(
                                   decoration: BoxDecoration(
                                     image: DecorationImage(
-                                      image: imageUrl.startsWith('http')
-                                          ? NetworkImage(imageUrl)
-                                          : AssetImage(imageUrl)
-                                                as ImageProvider,
+                                      image: NetworkImage(imageUrl),
                                       fit: BoxFit.cover,
                                     ),
                                   ),
@@ -156,15 +139,6 @@ class _PetPerfilPageState extends State<PetPerfilPage> {
                               ? const Color(0xFFB6B2E1)
                               : Colors.grey.shade400,
                           borderRadius: BorderRadius.circular(8),
-                          boxShadow: _currentPage == index
-                              ? [
-                                  BoxShadow(
-                                    color: Colors.black.withOpacity(0.25),
-                                    blurRadius: 4,
-                                    offset: const Offset(0, 2),
-                                  ),
-                                ]
-                              : [],
                         ),
                       );
                     }),
@@ -172,10 +146,7 @@ class _PetPerfilPageState extends State<PetPerfilPage> {
                 ],
               ),
             ),
-
             const SizedBox(height: 24),
-  
-            // --- Card principal com Nome, Descrição e Botões ---
             Card(
               color: Colors.white,
               shape: RoundedRectangleBorder(
@@ -193,13 +164,21 @@ class _PetPerfilPageState extends State<PetPerfilPage> {
                           children: [
                             Text(
                               widget.pet.nome,
-                              style: TextStyle(
+                              style: const TextStyle(
                                 fontSize: 22,
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
-                            SizedBox(width: 6),
-                            Icon(Icons.female, color: Colors.pink, size: 22),
+                            const SizedBox(width: 6),
+                            Icon(
+                              widget.pet.sexo == 'm'
+                                  ? Icons.male
+                                  : Icons.female,
+                              color: widget.pet.sexo == 'm'
+                                  ? Colors.blueAccent
+                                  : Colors.pinkAccent,
+                              size: 22,
+                            ),
                           ],
                         ),
                         const SizedBox(height: 4),
@@ -226,12 +205,10 @@ class _PetPerfilPageState extends State<PetPerfilPage> {
                           padding: const EdgeInsets.symmetric(vertical: 8),
                           child: Text(
                             widget.pet.descricao,
-                            style: TextStyle(fontSize: 16),
+                            style: const TextStyle(fontSize: 16),
                           ),
                         ),
-
                         const SizedBox(height: 16),
-
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                           children: [
@@ -287,18 +264,34 @@ class _PetPerfilPageState extends State<PetPerfilPage> {
                       ],
                     ),
                   ),
-                  const Positioned(
+                  Positioned(
                     top: 18,
                     right: 12,
-                    child: Icon(Icons.favorite_border, color: Colors.grey),
+                    child: ValueListenableBuilder<List<Pet>>(
+                      valueListenable: FavoritesService.favorites,
+                      builder: (context, favorites, _) {
+                        final isFavorite = FavoritesService.isFavorite(
+                          widget.pet,
+                        );
+                        return IconButton(
+                          icon: Icon(
+                            isFavorite ? Icons.favorite : Icons.favorite_border,
+                            color: isFavorite ? Colors.red : Colors.grey,
+                          ),
+                          onPressed: () {
+                            // setState é necessário aqui para reconstruir este widget específico
+                            setState(() {
+                              FavoritesService.toggleFavorite(widget.pet);
+                            });
+                          },
+                        );
+                      },
+                    ),
                   ),
                 ],
               ),
             ),
-
             const SizedBox(height: 8),
-
-            // --- Bloco: Características com Tags ---
             Card(
               color: Colors.white,
               shape: RoundedRectangleBorder(
@@ -330,32 +323,30 @@ class _PetPerfilPageState extends State<PetPerfilPage> {
                 ),
               ),
             ),
-
             const SizedBox(height: 100),
-
-            // 💡 REMOVIDO: Este botão não é mais necessário, pois a navegação de volta
-            // será tratada pelo BottomMenu ou pelo botão de voltar nativo.
-            // ElevatedButton(
-            //   onPressed: widget.onNavigateBack,
-            //   ...
-            // ),
-            // const SizedBox(height: 24),
           ],
         ),
       ),
-
-      // 💡 NOVO: BottomMenu forçado a ficar inativo (todos os botões apagados)
       bottomNavigationBar: BottomMenu(
-        // Índice 0 é o 'Início'. O menu inteiro deve estar apagado, mas este item
-        // em particular pode ser um "voltar para Home" de forma implícita.
-        currentIndex: 0,
+        currentIndex: -1,
         onTap: (index) {
-          // Se o usuário clicar em qualquer item, simplesmente retorna à página anterior (Home).
-          // Em um app real, você checaria se index == 0.
-          Navigator.pop(context);
+          switch (index) {
+            case 0: // Início
+              Navigator.pop(context);
+              break;
+            case 3: // Favoritos
+              // --- CORREÇÃO APLICADA AQUI ---
+              // Usamos a lista `allPets` importada do pet_catalog.dart
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => FavoritosPage(allPets: allPets),
+                ),
+              );
+              break;
+          }
         },
-        // Força todos os ícones a ficarem apagados/inativos visualmente.
-        forceAllOff: true,
+        forceAllOff: false,
       ),
     );
   }

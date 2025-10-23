@@ -33,7 +33,7 @@ class BottomMenu extends StatelessWidget {
     ];
 
     return Container(
-      margin: const EdgeInsets.fromLTRB(12, 12, 12, 24),
+      margin: const EdgeInsets.fromLTRB(12, 12, 12, 65),
       padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
       decoration: BoxDecoration(
         color: Colors.white,
