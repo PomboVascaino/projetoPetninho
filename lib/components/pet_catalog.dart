@@ -1,21 +1,25 @@
-// lib/components/pet_catalog.dart
+// lib/components/pet_catalog.dart (CÓDIGO CORRIGIDO)
 
 import 'package:flutter/material.dart';
 import 'package:teste_app/Models/pets_model.dart';
 import 'package:teste_app/pages/pet_perfil_page.dart';
 import 'package:teste_app/components/pet_card.dart';
-import '../services/favorites_service.dart'; // Importe o serviço
+import '../services/favorites_service.dart';
 
-// 1. Convertido para StatefulWidget para poder atualizar a UI
+// 1. CORREÇÃO: Tornar o callback final e incluí-lo no construtor
 class PetCatalog extends StatefulWidget {
-  PetCatalog({super.key});
+  final Function(String petName, String petDetails) onPetCardLongPress;
+
+  const PetCatalog({
+    super.key, 
+    required this.onPetCardLongPress, // ATRIBUIÇÃO CORRETA
+  });
 
   @override
   State<PetCatalog> createState() => _PetCatalogState();
 }
 
 class _PetCatalogState extends State<PetCatalog> {
-  // SUA LISTA ORIGINAL ESTÁ AQUI E NÃO FOI ALTERADA NEM REMOVIDA.
   final List<Pet> pets = [
     Pet(
       nome: "Theo",
@@ -104,6 +108,11 @@ class _PetCatalogState extends State<PetCatalog> {
               context,
               MaterialPageRoute(builder: (context) => PetPerfilPage(pet: pet)),
             );
+          },
+          // CORREÇÃO: Adicionar a funcionalidade onLongPress
+          onLongPress: () {
+            // Chama o callback da HomePage e passa o texto
+            widget.onPetCardLongPress(pet.nome, pet.descricao);
           },
           // 2. Passamos o objeto Pet e a função de controle para o PetCard
           child: ConstrainedBox(

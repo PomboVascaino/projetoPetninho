@@ -1,25 +1,24 @@
+// lib/pages/pet_perfil_page.dart
+
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:teste_app/Models/pets_model.dart';
 import 'package:teste_app/components/menu_drawer.dart';
-// Note: Assumindo que AppHeader e BottomMenu são componentes existentes
-// Se não existirem, você deve criá-los ou usar widgets placeholder
 import '../components/header.dart';
 import '../components/bottom_menu.dart';
+import '../components/partial_search_delegate.dart.dart' show PetSearchDelegate;
 import '../services/favorites_service.dart';
-import '../components/partial_search_modal.dart.dart'; 
+import '../components/pet_search_delegate.dart'; 
+import '../components/libras_overlay_robot.dart'; 
+import '../utils/accessibility_manager.dart'; 
 
-// Assumindo que AppDrawer é um componente existente
 
 class PetPerfilPage extends StatefulWidget {
-  // 💡 REMOVIDO: onNavigateBack não é mais necessário, pois usaremos Navigator.pop
-  // final VoidCallback onNavigateBack;
-
   final Pet pet;
 
   const PetPerfilPage({
     super.key,
     required this.pet,
-    // required this.onNavigateBack, // Removido
   });
 
   @override
@@ -29,49 +28,89 @@ class PetPerfilPage extends StatefulWidget {
 class _PetPerfilPageState extends State<PetPerfilPage> {
   final PageController _pageController = PageController(initialPage: 0);
   int _currentPage = 0;
-
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+  late AccessibilityManager _manager;
+
+
+  @override
+  void initState() {
+    super.initState();
+    
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _manager = Provider.of<AccessibilityManager>(context, listen: false); 
+      
+      final description = "Você está na página de perfil de ${widget.pet.nome}. ${widget.pet.descricao}. Pressione e segure em qualquer texto para tradução em libras.";
+      _manager.speak(description);
+      
+      if (_manager.isLibrasActive) {
+        _manager.updateRobotText(description);
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    if (mounted) {
+      _manager.speak(""); 
+    }
+    super.dispose();
+  }
+
 
   Widget _buildTag(String text) {
     const Color tagColor = Color(0xFFb3e0db);
 
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-      margin: const EdgeInsets.only(right: 8, bottom: 8),
-      decoration: BoxDecoration(
-        color: tagColor,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: const Color(0xFFb3e0db), width: 1),
-      ),
-      child: Text(
-        text,
-        style: const TextStyle(
-          fontSize: 12,
-          color: Colors.black87,
-          fontWeight: FontWeight.w500,
+    return Semantics(
+      label: 'Característica: $text',
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+        margin: const EdgeInsets.only(right: 8, bottom: 8),
+        decoration: BoxDecoration(
+          color: tagColor,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: const Color(0xFFb3e0db), width: 1),
+        ),
+        child: Text(
+          text,
+          style: const TextStyle(
+            fontSize: 12,
+            color: Colors.black87,
+            fontWeight: FontWeight.w500,
+          ),
         ),
       ),
     );
   }
 
   void _abrirModalImagem(String imageUrl) {
+    _manager.speak("Abrindo visualização ampliada da imagem. Toque para fechar.");
+    
     showDialog(
       context: context,
       barrierDismissible: true,
-      barrierColor: Colors.black.withValues(alpha: 0.85),
+      barrierColor: Colors.black.withOpacity(0.85),
       useSafeArea: true,
       builder: (BuildContext context) {
         return Center(
           child: GestureDetector(
             onTap: () => Navigator.pop(context),
-            child: Container(
-              color: Colors.transparent,
-              child: Center(
-                child: Hero(
-                  tag: imageUrl,
-                  child: InteractiveViewer(
-                    maxScale: 4.0,
-                    child: Image.network(imageUrl, fit: BoxFit.contain),
+            onLongPress: () {
+               if (_manager.isLibrasActive) {
+                  _manager.updateRobotText("Visualização ampliada da imagem. Toque em qualquer lugar para fechar.");
+                }
+            },
+            child: Semantics(
+              label: 'Visualização ampliada da imagem. Toque em qualquer lugar para fechar.',
+              button: true,
+              child: Container(
+                color: Colors.transparent,
+                child: Center(
+                  child: Hero(
+                    tag: imageUrl,
+                    child: InteractiveViewer(
+                      maxScale: 4.0,
+                      child: Image.network(imageUrl, fit: BoxFit.contain),
+                    ),
                   ),
                 ),
               ),
@@ -84,14 +123,21 @@ class _PetPerfilPageState extends State<PetPerfilPage> {
 
   @override
   Widget build(BuildContext context) {
+    final manager = Provider.of<AccessibilityManager>(context, listen: false); 
+
     return Scaffold(
       key: _scaffoldKey,
       backgroundColor: Colors.white,
 
-      // O AppHeader é mantido
-      appBar: AppHeader(title: "Detalhes do Pet", scaffoldKey: _scaffoldKey),
+      appBar: AppHeader(
+        title: "Detalhes do Pet", 
+        scaffoldKey: _scaffoldKey,
+        onSearchPressed: () {
+          manager.speak("Abrindo pesquisa de pets."); 
+          showSearch(context: context, delegate: PetSearchDelegate());
+        },
+      ),
 
-      // DRAWER ADICIONADO AQUI
       drawer: const MenuDrawer(),
 
       body: SingleChildScrollView(
@@ -114,24 +160,32 @@ class _PetPerfilPageState extends State<PetPerfilPage> {
                           setState(() {
                             _currentPage = index;
                           });
+                          manager.speak("Imagem ${index + 1} de ${widget.pet.imagens.length} selecionada.");
                         },
                         itemBuilder: (context, index) {
                           final imageUrl = widget.pet.imagens[index];
                           return GestureDetector(
                             onTap: () => _abrirModalImagem(imageUrl),
-                            child: AnimatedOpacity(
-                              duration: const Duration(milliseconds: 400),
-                              opacity: _currentPage == index ? 1.0 : 0.6,
-                              child: Hero(
-                                tag: imageUrl,
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                    image: DecorationImage(
-                                      image: imageUrl.startsWith('http')
-                                          ? NetworkImage(imageUrl)
-                                          : AssetImage(imageUrl)
-                                                as ImageProvider,
-                                      fit: BoxFit.cover,
+                            onLongPress: () {
+                              if (manager.isLibrasActive) {
+                                manager.updateRobotText("Imagem ${index + 1} do pet ${widget.pet.nome}. Toque para ampliar.");
+                              }
+                            },
+                            child: Semantics(
+                              label: 'Imagem ${index + 1} de ${widget.pet.imagens.length}. Toque para ampliar.',
+                              child: AnimatedOpacity(
+                                duration: const Duration(milliseconds: 400),
+                                opacity: _currentPage == index ? 1.0 : 0.6,
+                                child: Hero(
+                                  tag: imageUrl,
+                                  child: Container(
+                                    decoration: BoxDecoration(
+                                      image: DecorationImage(
+                                        image: imageUrl.startsWith('http')
+                                            ? NetworkImage(imageUrl)
+                                            : AssetImage(imageUrl) as ImageProvider,
+                                        fit: BoxFit.cover,
+                                      ),
                                     ),
                                   ),
                                 ),
@@ -174,7 +228,7 @@ class _PetPerfilPageState extends State<PetPerfilPage> {
             ),
 
             const SizedBox(height: 24),
-  
+ 
             // --- Card principal com Nome, Descrição e Botões ---
             Card(
               color: Colors.white,
@@ -184,113 +238,146 @@ class _PetPerfilPageState extends State<PetPerfilPage> {
               elevation: 4,
               child: Stack(
                 children: [
-                  Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: [
-                            Text(
-                              widget.pet.nome,
-                              style: TextStyle(
-                                fontSize: 22,
-                                fontWeight: FontWeight.bold,
+                  GestureDetector( 
+                    onLongPress: () {
+                        if (manager.isLibrasActive) {
+                          final textToTranslate = "Nome: ${widget.pet.nome}. Gênero: Fêmea. Descrição: ${widget.pet.descricao}.";
+                          manager.updateRobotText(textToTranslate);
+                        }
+                    },
+                    child: Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Text(
+                                widget.pet.nome,
+                                style: const TextStyle(
+                                  fontSize: 22,
+                                  fontWeight: FontWeight.bold,
+                                ),
                               ),
-                            ),
-                            SizedBox(width: 6),
-                            Icon(Icons.female, color: Colors.pink, size: 22),
-                          ],
-                        ),
-                        const SizedBox(height: 4),
-                        Row(
-                          children: const [
-                            Text(
-                              'Anunciado há 1 dia',
-                              style: TextStyle(color: Colors.grey),
-                            ),
-                            Spacer(),
-                            Icon(
-                              Icons.location_on,
-                              color: Colors.grey,
-                              size: 16,
-                            ),
-                            Text(
-                              '3.0 km',
-                              style: TextStyle(color: Colors.grey),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 12),
-                        Container(
-                          padding: const EdgeInsets.symmetric(vertical: 8),
-                          child: Text(
-                            widget.pet.descricao,
-                            style: TextStyle(fontSize: 16),
+                              const SizedBox(width: 6),
+                              Semantics(
+                                label: 'Gênero: Fêmea',
+                                child: const Icon(Icons.female, color: Colors.pink, size: 22),
+                              ),
+                            ],
                           ),
-                        ),
+                          const SizedBox(height: 4),
+                          Row(
+                            children: const [
+                              Text(
+                                'Anunciado há 1 dia',
+                                style: TextStyle(color: Colors.grey),
+                              ),
+                              Spacer(),
+                              Icon(
+                                Icons.location_on,
+                                color: Colors.grey,
+                                size: 16,
+                              ),
+                              Text(
+                                '3.0 km',
+                                style: TextStyle(color: Colors.grey),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 12),
+                          Container(
+                            padding: const EdgeInsets.symmetric(vertical: 8),
+                            child: Semantics(
+                              label: 'Descrição do pet: ${widget.pet.descricao}',
+                              child: Text(
+                                widget.pet.descricao,
+                                style: const TextStyle(fontSize: 16),
+                              ),
+                            ),
+                          ),
 
-                        const SizedBox(height: 16),
+                          const SizedBox(height: 16),
 
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                          children: [
-                            ElevatedButton(
-                              onPressed: () {},
-                              style: ElevatedButton.styleFrom(
-                                shape: const CircleBorder(),
-                                padding: const EdgeInsets.all(16),
-                                backgroundColor: const Color(0xFFB6B2E1),
-                                elevation: 0,
-                              ),
-                              child: const Icon(
-                                Icons.phone,
-                                color: Colors.white,
-                              ),
-                            ),
-                            ElevatedButton(
-                              onPressed: () {},
-                              style: ElevatedButton.styleFrom(
-                                shape: const CircleBorder(),
-                                padding: const EdgeInsets.all(16),
-                                backgroundColor: const Color(0xFFB6B2E1),
-                                elevation: 0,
-                              ),
-                              child: const Icon(
-                                Icons.chat,
-                                color: Colors.white,
-                              ),
-                            ),
-                            ElevatedButton.icon(
-                              onPressed: () {},
-                              icon: const Icon(Icons.pets, color: Colors.white),
-                              label: const Text(
-                                'Quero adotar',
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 16,
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            children: [
+                              ElevatedButton(
+                                onPressed: () => manager.speak("Tentando ligar para o anunciante."),
+                                style: ElevatedButton.styleFrom(
+                                  shape: const CircleBorder(),
+                                  padding: const EdgeInsets.all(16),
+                                  backgroundColor: const Color(0xFFB6B2E1),
+                                  elevation: 0,
+                                ),
+                                child: Semantics(
+                                  label: 'Ligar para o anunciante',
+                                  button: true,
+                                  child: const Icon(Icons.phone, color: Colors.white),
                                 ),
                               ),
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: const Color(0xFFB6B2E1),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(20),
+                              ElevatedButton(
+                                onPressed: () => manager.speak("Abrindo chat com o anunciante."),
+                                style: ElevatedButton.styleFrom(
+                                  shape: const CircleBorder(),
+                                  padding: const EdgeInsets.all(16),
+                                  backgroundColor: const Color(0xFFB6B2E1),
+                                  elevation: 0,
                                 ),
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 16,
-                                  vertical: 12,
+                                child: Semantics(
+                                  label: 'Abrir chat com o anunciante',
+                                  button: true,
+                                  child: const Icon(Icons.chat, color: Colors.white),
                                 ),
                               ),
-                            ),
-                          ],
-                        ),
-                      ],
+                              ElevatedButton.icon(
+                                onPressed: () => manager.speak("Abrindo formulário de adoção."),
+                                icon: const Icon(Icons.pets, color: Colors.white),
+                                label: const Text(
+                                  'Quero adotar',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 16,
+                                  ),
+                                ),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: const Color(0xFFB6B2E1),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(20),
+                                  ),
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 16,
+                                    vertical: 12,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
                     ),
                   ),
-                  const Positioned(
+                  // 🚨 CORREÇÃO APLICADA AQUI: Removido o 'const' do Positioned
+                  Positioned(
                     top: 18,
                     right: 12,
-                    child: Icon(Icons.favorite_border, color: Colors.grey),
+                    child: GestureDetector( // 💡 Adicionado GestureDetector para ação
+                      onTap: () {
+                        // 🗣️ Fala a ação (e aqui adicionaria a lógica real do FavoriteService)
+                        manager.speak("Adicionando aos favoritos."); 
+                      },
+                      onLongPress: () {
+                        // 🤟 Tradução em Libras
+                        if (manager.isLibrasActive) {
+                          manager.updateRobotText("Adicionar ou remover este pet dos favoritos.");
+                        }
+                      },
+                      child: Semantics( // 💡 Semantics para Favorito
+                        label: 'Adicionar ou remover dos favoritos',
+                        button: true,
+                        child: const Icon(Icons.favorite_border, color: Colors.grey),
+                      ),
+                    ),
                   ),
                 ],
               ),
@@ -310,12 +397,24 @@ class _PetPerfilPageState extends State<PetPerfilPage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
-                      'Características',
-                      style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.black87,
+                    GestureDetector( 
+                      onLongPress: () {
+                          if (manager.isLibrasActive) {
+                            final tagsText = widget.pet.tags.join(', ');
+                            manager.updateRobotText("Características do pet: $tagsText.");
+                          }
+                      },
+                      // 🚨 CORREÇÃO APLICADA AQUI: Removido o 'const' do Semantics
+                      child: Semantics(
+                        label: 'Seção de Características',
+                        child: const Text(
+                          'Características',
+                          style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black87,
+                          ),
+                        ),
                       ),
                     ),
                     const SizedBox(height: 12),
@@ -332,29 +431,16 @@ class _PetPerfilPageState extends State<PetPerfilPage> {
             ),
 
             const SizedBox(height: 100),
-
-            // 💡 REMOVIDO: Este botão não é mais necessário, pois a navegação de volta
-            // será tratada pelo BottomMenu ou pelo botão de voltar nativo.
-            // ElevatedButton(
-            //   onPressed: widget.onNavigateBack,
-            //   ...
-            // ),
-            // const SizedBox(height: 24),
           ],
         ),
       ),
 
-      // 💡 NOVO: BottomMenu forçado a ficar inativo (todos os botões apagados)
       bottomNavigationBar: BottomMenu(
-        // Índice 0 é o 'Início'. O menu inteiro deve estar apagado, mas este item
-        // em particular pode ser um "voltar para Home" de forma implícita.
         currentIndex: 0,
         onTap: (index) {
-          // Se o usuário clicar em qualquer item, simplesmente retorna à página anterior (Home).
-          // Em um app real, você checaria se index == 0.
+          manager.speak("Voltando para a página inicial."); 
           Navigator.pop(context);
         },
-        // Força todos os ícones a ficarem apagados/inativos visualmente.
         forceAllOff: true,
       ),
     );

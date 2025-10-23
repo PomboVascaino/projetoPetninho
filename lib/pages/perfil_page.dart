@@ -1,98 +1,129 @@
 import 'package:flutter/material.dart';
- 
-class PerfilPage extends StatefulWidget {
-  const PerfilPage({super.key,});
- 
- 
- 
- 
-  @override
-  State<PerfilPage> createState() => _PerfilPageState();
-}
- 
-class _PerfilPageState extends State<PerfilPage> {
-  int _counter = 0;
- 
-  void _incrementCounter() {
-    setState(() {
-   
-      _counter++;
-    });
-  }
- 
+import 'package:teste_app/components/partial_search_delegate.dart.dart';
+import 'package:teste_app/pages/favoritos_pages.dart';
+import '../components/header.dart';
+import '../components/bottom_menu.dart';
+import '../components/pet_catalog.dart';
+import '../components/categories.dart';
+import '../components/location_widget.dart';
+import '../components/menu_drawer.dart';
+// 1. IMPORT NECESSÁRIO: Certifique-se de que o caminho está correto!
+import '../components/partial_search_delegate.dart.dart'; 
+import '../components/libras_overlay_robot.dart'; 
+
+
+class PerfilPage extends StatelessWidget {
+  const PerfilPage({super.key});
+
   @override
   Widget build(BuildContext context) {
-   
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
-        toolbarOpacity: 0.7,
-       foregroundColor: Colors.black,
-        backgroundColor: Colors.deepPurpleAccent,
-     
-        title: Text("Meu perfil"),
+        backgroundColor: Colors.white,
+        elevation: 0,
+        automaticallyImplyLeading: false,
+        title: Center(
+          child: Image.asset(
+            "assets/logo.png", // coloque o logo "petninho" aqui
+            height: 40,
+          ),
+        ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.search, color: Colors.black87),
+            onPressed: () {},
+          ),
+          IconButton(
+            icon: const Icon(Icons.notifications_none, color: Colors.black87),
+            onPressed: () {},
+          ),
+        ],
       ),
       body: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+        padding: const EdgeInsets.all(16.0),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,      
-          children:[
-           
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              "Perfil",
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 20),
 
-        Center(
-          child: ClipOval (child: Image.network(
-             height: 120,
-            width: 120,
-            fit: BoxFit.cover,
-            "https://static1.cbrimages.com/wordpress/wp-content/uploads/2020/04/kid-buu-2-1.jpg?q=50&fit=crop&w=1100&h=618&dpr=1.5")),
-        ),
-            Row(
-              children: [
-                Icon(Icons.person_4, color: const Color.fromARGB(233, 238, 28, 28),),
-                SizedBox(width: 5,),
-                Text("Meu nome:", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),),
-              ],
+            // Dados do usuário
+            ListTile(
+              leading: const CircleAvatar(
+                child: Icon(Icons.person, color: Colors.black),
+              ),
+              title: const Text("Gustavo Zazu"),
+              subtitle: const Text("guh.zazu@gmail.com"),
+              onTap: () {},
             ),
-            Text("Arthur"),
-            SizedBox(height: 20,),
-            Row(
-              children: [
-                Icon(Icons.email, color: const Color.fromARGB(108, 252, 42, 14),),
-                SizedBox(width: 5,),
-                Text("Meu email:", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),),
-              ],
+            const SizedBox(height: 10),
+
+            // Lista de opções
+            _buildMenuItem(Icons.credit_card, "Meus Dados", () {}),
+            _buildMenuItem(Icons.favorite, "Minhas Adoções", () {}),
+            _buildMenuItem(Icons.shopping_bag, "Minhas Compras", () {}),
+            _buildMenuItem(Icons.location_on, "Endereços", () {}),
+            _buildMenuItem(Icons.payment, "Meus Cartões", () {}),
+            _buildMenuItem(Icons.notifications, "Notificações", () {}),
+
+            const Spacer(),
+
+            // Botão sair
+            Center(
+              child: ElevatedButton(
+                onPressed: () {},
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.white,
+                  side: const BorderSide(color: Colors.black26),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 50, vertical: 12),
+                ),
+                child: const Text(
+                  "Sair",
+                  style: TextStyle(color: Colors.black87),
+                ),
+              ),
             ),
-            Text("Eusoufoda@gmail.com"),
-            SizedBox(height: 20,),
- 
-             Row(
-               children: [
-                Icon(Icons.person_2),
-                SizedBox(width: 5,),
-                 Text("bio", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),),
-               ],
-             ),
-             Container(
-              padding: EdgeInsets.all(20),
-              decoration: BoxDecoration(color: Colors.grey, borderRadius: BorderRadius.circular(20)),
- 
-               child: Text("Neque porro quisquam est qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit..."
-               "There is no one who loves pain itself, who seeks after it and wants to have it, simply because it is pain..."
-               "There is no one who loves pain itself, who seeks after it and wants to have it, simply because it is pain..."
-               "There is no one who loves pain itself, who seeks after it and wants to have it, simply because it is pain..."
-               "There is no one who loves pain itself, who seeks after it and wants to have it, simply because it is pain..."
-               "There is no one who loves pain itself, who seeks after it and wants to have it, simply because it is pain..."
-               "There is no one who loves pain itself, who seeks after it and wants to have it, simply because it is pain..."
-               "There is no one who loves pain itself, who seeks after it and wants to have it, simply because it is pain..."
-               "There is no one who loves pain itself, who seeks after it and wants to have it, simply because it is pain..."
-               "There is no one who loves pain itself, who seeks after it and wants to have it, simply because it is pain..."
-               "There is no one who loves pain itself, who seeks after it and wants to have it, simply because it is pain..."),
- 
-             )
-            ],
+          ],
         ),
-      ),    
+      ),
+
+      // Bottom Navigation Bar
+      bottomNavigationBar: BottomNavigationBar(
+        type: BottomNavigationBarType.fixed,
+        selectedItemColor: Colors.black,
+        unselectedItemColor: Colors.black54,
+        backgroundColor: const Color(0xFFD2F1EB), // verde claro do Figma
+        items: const [
+          BottomNavigationBarItem(icon: Icon(Icons.home), label: "Início"),
+          BottomNavigationBarItem(icon: Icon(Icons.store), label: "Loja"),
+          BottomNavigationBarItem(icon: Icon(Icons.chat), label: "Chat"),
+          BottomNavigationBarItem(icon: Icon(Icons.favorite), label: "Favoritos"),
+          BottomNavigationBarItem(icon: Icon(Icons.person), label: "Perfil"),
+        ],
+      ),
+    );
+  }
+
+  // Widget para cada item do menu
+  Widget _buildMenuItem(IconData icon, String title, VoidCallback onTap) {
+    return Column(
+      children: [
+        ListTile(
+          leading: Icon(icon, color: Colors.black),
+          title: Text(title),
+          trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+          onTap: onTap,
+        ),
+        const Divider(height: 1),
+      ],
     );
   }
 }
- 
- 
