@@ -9,6 +9,7 @@ import 'package:teste_app/pages/favoritos_pages.dart';
 import '../components/header.dart';
 import '../components/bottom_menu.dart';
 import '../services/favorites_service.dart';
+import '../components/partial_search_modal.dart.dart'; 
 
 class PetPerfilPage extends StatefulWidget {
   final Pet pet;
