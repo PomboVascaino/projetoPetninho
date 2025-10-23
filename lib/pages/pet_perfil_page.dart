@@ -3,7 +3,9 @@
 import 'package:flutter/material.dart';
 import 'package:teste_app/Models/pets_model.dart';
 import 'package:teste_app/components/menu_drawer.dart';
-import 'package:teste_app/pages/favoritos_pages.dart'; // Importe a página de favoritos
+import 'package:teste_app/components/pet_catalog.dart';
+import 'package:teste_app/pages/favoritos_pages.dart';
+// <-- IMPORTAÇÃO NECESSÁRIA
 import '../components/header.dart';
 import '../components/bottom_menu.dart';
 import '../services/favorites_service.dart';
@@ -110,10 +112,7 @@ class _PetPerfilPageState extends State<PetPerfilPage> {
                                 child: Container(
                                   decoration: BoxDecoration(
                                     image: DecorationImage(
-                                      image: imageUrl.startsWith('http')
-                                          ? NetworkImage(imageUrl)
-                                          : AssetImage(imageUrl)
-                                                as ImageProvider,
+                                      image: NetworkImage(imageUrl),
                                       fit: BoxFit.cover,
                                     ),
                                   ),
@@ -139,16 +138,6 @@ class _PetPerfilPageState extends State<PetPerfilPage> {
                               ? const Color(0xFFB6B2E1)
                               : Colors.grey.shade400,
                           borderRadius: BorderRadius.circular(8),
-                          boxShadow: _currentPage == index
-                              ? [
-                                  BoxShadow(
-                                    // ignore: deprecated_member_use
-                                    color: Colors.black.withOpacity(0.25),
-                                    blurRadius: 4,
-                                    offset: const Offset(0, 2),
-                                  ),
-                                ]
-                              : [],
                         ),
                       );
                     }),
@@ -289,7 +278,10 @@ class _PetPerfilPageState extends State<PetPerfilPage> {
                             color: isFavorite ? Colors.red : Colors.grey,
                           ),
                           onPressed: () {
-                            FavoritesService.toggleFavorite(widget.pet);
+                            // setState é necessário aqui para reconstruir este widget específico
+                            setState(() {
+                              FavoritesService.toggleFavorite(widget.pet);
+                            });
                           },
                         );
                       },
@@ -334,31 +326,25 @@ class _PetPerfilPageState extends State<PetPerfilPage> {
           ],
         ),
       ),
-      // ✅ --- CÓDIGO CORRIGIDO --- ✅
       bottomNavigationBar: BottomMenu(
-        // Nenhum item fica selecionado, pois esta é uma página de detalhe.
         currentIndex: -1,
         onTap: (index) {
-          // Navega para a tela correta com base no índice clicado.
           switch (index) {
             case 0: // Início
-              // Volta para a tela anterior (a HomePage).
               Navigator.pop(context);
               break;
             case 3: // Favoritos
-              // Abre a página de Favoritos por cima da atual.
+              // --- CORREÇÃO APLICADA AQUI ---
+              // Usamos a lista `allPets` importada do pet_catalog.dart
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => const FavoritosPage()),
+                MaterialPageRoute(
+                  builder: (context) => FavoritosPage(allPets: allPets),
+                ),
               );
               break;
-            // Aqui você pode adicionar a navegação para as outras telas (Loja, Chat, Perfil)
-            // case 1: ...
-            // case 2: ...
-            // case 4: ...
           }
         },
-        // O menu agora parece ativo.
         forceAllOff: false,
       ),
     );

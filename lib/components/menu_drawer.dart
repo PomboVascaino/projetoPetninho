@@ -12,9 +12,9 @@ import '../pages/chat_page.dart';
 
 class MenuDrawer extends StatelessWidget {
   final String? currentRoute;
+  final VoidCallback? onNavigateToRegister;
 
-  const MenuDrawer({super.key, this.currentRoute});
-
+  const MenuDrawer({super.key, this.currentRoute, this.onNavigateToRegister});
   @override
   Widget build(BuildContext context) {
     return Drawer(
@@ -25,6 +25,13 @@ class MenuDrawer extends StatelessWidget {
           const SizedBox(height: 60),
 
           _buildSectionTitle('Opções'),
+          if (onNavigateToRegister != null)
+            _buildMenuItem(
+              context: context,
+              icon: Icons.add_circle_outline,
+              text: 'Cadastrar um Pet',
+              onTap: onNavigateToRegister!,
+            ),
           _buildMenuItem(
             context: context,
             icon: Icons.pets,

@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:teste_app/pages/favoritos_pages.dart';
+// NOVO: Importe o modelo e a página de registro
+import 'package:teste_app/Models/pets_model.dart';
+import 'package:teste_app/pages/registro_pet_page.dart';
 import '../components/header.dart';
 import '../components/bottom_menu.dart';
 import '../components/pet_catalog.dart';
 import '../components/categories.dart';
 import '../components/location_widget.dart';
-import '../components/menu_drawer.dart';
+import '../components/menu_drawer.dart'; // Certifique-se que este import está correto
 
 // =========================
 // HomePage
@@ -20,29 +22,64 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
-  // Número de itens fixos no menu inferior (0 a 4)
-  static const int _kMenuSize = 5;
+  // NOVO: A lista de pets agora vive aqui no estado da HomePage
+  final List<Pet> _pets = [
+    Pet(
+      nome: "Theo",
+      sexo: "Macho",
+      bairro: "Barra Funda",
+      cidade: "São Paulo",
+      idade: "8 meses",
+      tags: ["Gosta de brincar", "Dócil", "Agitado"],
+      imagens: ["https://i.imgur.com/IyLen7R.png"],
+      raca: 'SRD',
+      descricao: 'Um pet muito amigável.',
+      telefone: '99999-9999',
+    ),
+    Pet(
+      nome: "Crystal",
+      sexo: "Fêmea",
+      bairro: "Cachoeirinha",
+      cidade: "São Paulo",
+      idade: "1 ano",
+      tags: ["Gosta de passear", "Dócil", "Calma"],
+      imagens: ["https://i.imgur.com/ZbttlFX.png"],
+      raca: 'Shitzu',
+      descricao: 'Uma pet muito dócil.',
+      telefone: '99999-9999',
+    ),
+  ];
 
-  int _selectedIndex = 0; // O índice 0 é a Home/Início
+  static const int _kMenuSize = 5;
+  int _selectedIndex = 0;
   int _selectedCategory = 0;
   String _locationText = "Vila Romana - São Paulo";
 
-  // Função para alterar o índice do menu inferior
   void _onItemTapped(int index) {
     if (index >= 0 && index < _kMenuSize) {
-      if (index == 3) {
-        // ✅ Se o usuário clicar em "Favoritos" (índice 3), abre FavoritosPage
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => const FavoritosPage()),
-        );
-      } else {
-        // Atualiza o índice para os outros botões
-        setState(() {
-          _selectedIndex = index;
-        });
-      }
+      setState(() {
+        _selectedIndex = index;
+      });
     }
+  }
+
+  // NOVO: Função para adicionar um pet à lista e reconstruir a tela
+  void _adicionarPet(Pet pet) {
+    setState(() {
+      _pets.add(pet);
+    });
+  }
+
+  // NOVO: Função para navegar para a tela de registro
+  void _navegarParaRegistro() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => RegistroPetPage(
+          onPetRegistered: _adicionarPet, // Passa a função de adicionar
+        ),
+      ),
+    );
   }
 
   Future<void> _editLocation() async {
@@ -85,35 +122,29 @@ class _HomePageState extends State<HomePage> {
           children: [
             CategoriesBar(
               initialIndex: _selectedCategory,
-              onChanged: (i) {
-                setState(() {
-                  _selectedCategory = i;
-                });
-              },
+              onChanged: (i) => setState(() => _selectedCategory = i),
             ),
             const SizedBox(height: 12),
             LocationWidget(locationText: _locationText, onTap: _editLocation),
             const SizedBox(height: 12),
-            Expanded(child: PetCatalog()),
+            Expanded(
+              // ALTERADO: Passa a lista de pets para o PetCatalog
+              child: PetCatalog(pets: _pets),
+            ),
           ],
         ),
       );
     }
 
-    if (index > 0 && index < _kMenuSize) {
-      final menuItems = ["Loja", "Chat", "Favoritos", "Perfil"];
-      final title = menuItems[index - 1];
+    // ... resto do seu código _buildBody
+    final menuItems = ["Loja", "Chat", "Favoritos", "Perfil"];
+    final title = menuItems[index - 1];
 
-      return Center(
-        child: Text(
-          'Esta é a tela de $title',
-          style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-        ),
-      );
-    }
-
-    return const Center(
-      child: Text('Página não encontrada', style: TextStyle(fontSize: 24)),
+    return Center(
+      child: Text(
+        'Esta é a tela de $title',
+        style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+      ),
     );
   }
 
@@ -123,7 +154,7 @@ class _HomePageState extends State<HomePage> {
       backgroundColor: Colors.white,
       key: _scaffoldKey,
       appBar: AppHeader(title: "Adoção de Pets", scaffoldKey: _scaffoldKey),
-      drawer: const MenuDrawer(),
+      drawer: const MenuDrawer(), // Use MenuDrawer se ele já existe
       body: _buildBody(_selectedIndex),
       bottomNavigationBar: BottomMenu(
         currentIndex: _selectedIndex,
