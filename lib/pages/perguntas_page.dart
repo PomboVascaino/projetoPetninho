@@ -26,12 +26,13 @@ class _PaginaPerguntasState extends State<PaginaPerguntas> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       key: _scaffoldKey,
       appBar: AppHeader(
         title: "Perguntas Frequentes",
         scaffoldKey: _scaffoldKey,
       ),
-      drawer: const MenuDrawer(),
+      drawer: MenuDrawer(),
 
       // O body agora é o nosso novo conteúdo de FAQ
       body: const ConteudoPerguntas(),
@@ -56,7 +57,7 @@ class _PaginaPerguntasState extends State<PaginaPerguntas> {
             case 3: // Favoritos
               Navigator.pushReplacement(
                 context,
-                MaterialPageRoute(builder: (context) => const FavoritosPage()),
+                MaterialPageRoute(builder: (context) => const FavoritosPage(allPets: [],)),
               );
               break;
             // Cases para Loja, Chat, Perfil foram removidos daqui também

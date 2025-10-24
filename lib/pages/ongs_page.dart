@@ -72,7 +72,7 @@ class _OngsPageState extends State<OngsPage> {
     return Scaffold(
       key: _scaffoldKey,
       appBar: AppHeader(title: "ONGs", scaffoldKey: _scaffoldKey),
-      drawer: const MenuDrawer(currentRoute: AppRoutes.ongs),
+      drawer:  MenuDrawer(currentRoute: AppRoutes.ongs),
       backgroundColor: Colors.white,
       body: ListView.builder(
         padding: const EdgeInsets.symmetric(vertical: 16.0),

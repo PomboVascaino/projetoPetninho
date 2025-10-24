@@ -63,8 +63,13 @@ final List<Pet> allPets = [
 
 class PetCatalog extends StatefulWidget {
   final List<Pet> pets;
-  // Construtor atualizado para receber a lista
-  const PetCatalog({super.key, required this.pets});
+  final VoidCallback onNavigate; // Recebe a função para atualizar a HomePage
+
+  const PetCatalog({
+    super.key,
+    required this.pets,
+    required this.onNavigate, // Torna obrigatório
+  });
 
   @override
   State<PetCatalog> createState() => _PetCatalogState();
@@ -75,7 +80,7 @@ class _PetCatalogState extends State<PetCatalog> {
   Widget build(BuildContext context) {
     return GridView.builder(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-      itemCount: widget.pets.length, // Usa a lista recebida do pai (HomePage)
+      itemCount: widget.pets.length,
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 2,
         childAspectRatio: 0.60,
@@ -90,16 +95,18 @@ class _PetCatalogState extends State<PetCatalog> {
             Navigator.push(
               context,
               MaterialPageRoute(builder: (context) => PetPerfilPage(pet: pet)),
-            );
+              // CORREÇÃO: Chama a função onNavigate ao voltar da tela de perfil
+            ).then((_) => widget.onNavigate());
           },
           child: ConstrainedBox(
             constraints: const BoxConstraints(maxHeight: 280),
             child: PetCard(
               pet: pet,
               onFavoriteToggle: () {
-                setState(() {
-                  FavoritesService.toggleFavorite(pet);
-                });
+                // Atualiza o serviço de favoritos
+                FavoritesService.toggleFavorite(pet);
+                // Chama a função para reconstruir a HomePage imediatamente
+                widget.onNavigate();
               },
             ),
           ),

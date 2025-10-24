@@ -1,17 +1,16 @@
+// lib/pages/home_page.dart
+
 import 'package:flutter/material.dart';
-// NOVO: Importe o modelo e a página de registro
 import 'package:teste_app/Models/pets_model.dart';
-import 'package:teste_app/pages/registro_pet_page.dart';
+import 'package:teste_app/pages/favoritos_pages.dart';
+import 'package:teste_app/pages/registro_pet_page.dart' hide MenuDrawer;
 import '../components/header.dart';
 import '../components/bottom_menu.dart';
 import '../components/pet_catalog.dart';
 import '../components/categories.dart';
 import '../components/location_widget.dart';
-import '../components/menu_drawer.dart'; // Certifique-se que este import está correto
+import '../components/menu_drawer.dart';
 
-// =========================
-// HomePage
-// =========================
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
 
@@ -22,33 +21,8 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
-  // NOVO: A lista de pets agora vive aqui no estado da HomePage
-  final List<Pet> _pets = [
-    Pet(
-      nome: "Theo",
-      sexo: "Macho",
-      bairro: "Barra Funda",
-      cidade: "São Paulo",
-      idade: "8 meses",
-      tags: ["Gosta de brincar", "Dócil", "Agitado"],
-      imagens: ["https://i.imgur.com/IyLen7R.png"],
-      raca: 'SRD',
-      descricao: 'Um pet muito amigável.',
-      telefone: '99999-9999',
-    ),
-    Pet(
-      nome: "Crystal",
-      sexo: "Fêmea",
-      bairro: "Cachoeirinha",
-      cidade: "São Paulo",
-      idade: "1 ano",
-      tags: ["Gosta de passear", "Dócil", "Calma"],
-      imagens: ["https://i.imgur.com/ZbttlFX.png"],
-      raca: 'Shitzu',
-      descricao: 'Uma pet muito dócil.',
-      telefone: '99999-9999',
-    ),
-  ];
+  // A lista de pets agora é a fonte única da verdade.
+  final List<Pet> _pets = allPets; // Usando a lista global do pet_catalog.dart
 
   static const int _kMenuSize = 5;
   int _selectedIndex = 0;
@@ -56,44 +30,52 @@ class _HomePageState extends State<HomePage> {
   String _locationText = "Vila Romana - São Paulo";
 
   void _onItemTapped(int index) {
-    if (index >= 0 && index < _kMenuSize) {
+    if (index == 3) { // Índice de Favoritos
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => FavoritosPage(allPets: _pets),
+        ),
+      // --- ESTA É A CORREÇÃO PRINCIPAL ---
+      // Ao voltar da FavoritosPage, o .then() será executado.
+      // O setState() força a HomePage a se reconstruir, lendo
+      // novamente o estado de favorito de cada pet.
+      ).then((_) => setState(() {})); 
+    } else if (index >= 0 && index < _kMenuSize) {
       setState(() {
         _selectedIndex = index;
       });
     }
   }
 
-  // NOVO: Função para adicionar um pet à lista e reconstruir a tela
   void _adicionarPet(Pet pet) {
     setState(() {
       _pets.add(pet);
     });
   }
 
-  // NOVO: Função para navegar para a tela de registro
   void _navegarParaRegistro() {
+    if (_scaffoldKey.currentState?.isDrawerOpen ?? false) {
+      Navigator.pop(context);
+    }
     Navigator.push(
       context,
       MaterialPageRoute(
         builder: (context) => RegistroPetPage(
-          onPetRegistered: _adicionarPet, // Passa a função de adicionar
+          onPetRegistered: _adicionarPet,
         ),
       ),
-    );
+    ).then((_) => setState(() {}));
   }
 
   Future<void> _editLocation() async {
+    // ... (seu código de editar localização continua igual)
     final controller = TextEditingController(text: _locationText);
     final result = await showDialog<String>(
       context: context,
       builder: (ctx) => AlertDialog(
         title: const Text('Editar localização'),
-        content: TextField(
-          controller: controller,
-          decoration: const InputDecoration(
-            hintText: 'Digite a nova localização',
-          ),
-        ),
+        content: TextField(controller: controller),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(),
@@ -106,7 +88,6 @@ class _HomePageState extends State<HomePage> {
         ],
       ),
     );
-
     if (result != null && result.trim().isNotEmpty) {
       setState(() {
         _locationText = result.trim();
@@ -128,15 +109,17 @@ class _HomePageState extends State<HomePage> {
             LocationWidget(locationText: _locationText, onTap: _editLocation),
             const SizedBox(height: 12),
             Expanded(
-              // ALTERADO: Passa a lista de pets para o PetCatalog
-              child: PetCatalog(pets: _pets),
+              child: PetCatalog(
+                pets: _pets,
+                // Passa a função que força a reconstrução para o PetCatalog
+                onNavigate: () => setState(() {}),
+              ),
             ),
           ],
         ),
       );
     }
 
-    // ... resto do seu código _buildBody
     final menuItems = ["Loja", "Chat", "Favoritos", "Perfil"];
     final title = menuItems[index - 1];
 
@@ -153,9 +136,11 @@ class _HomePageState extends State<HomePage> {
     return Scaffold(
       backgroundColor: Colors.white,
       key: _scaffoldKey,
-      // Use o AppHeader (veja exemplo abaixo) - passe a scaffoldKey para que o botão abra o drawer
       appBar: AppHeader(title: "Adoção de Pets", scaffoldKey: _scaffoldKey),
-      drawer: const MenuDrawer(), // <-- aqui está o novo menu lateral integrado
+      drawer: MenuDrawer(
+        onNavigateToRegister: _navegarParaRegistro,
+        currentRoute: '/',
+      ),
       body: _buildBody(_selectedIndex),
       bottomNavigationBar: BottomMenu(
         currentIndex: _selectedIndex,

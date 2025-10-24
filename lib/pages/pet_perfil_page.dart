@@ -9,7 +9,7 @@ import 'package:teste_app/pages/favoritos_pages.dart';
 import '../components/header.dart';
 import '../components/bottom_menu.dart';
 import '../services/favorites_service.dart';
-import '../components/partial_search_modal.dart.dart'; 
+import '../components/partial_search_modal.dart' hide allPets; 
 
 class PetPerfilPage extends StatefulWidget {
   final Pet pet;
@@ -80,7 +80,7 @@ class _PetPerfilPageState extends State<PetPerfilPage> {
       key: _scaffoldKey,
       backgroundColor: Colors.white,
       appBar: AppHeader(title: "Detalhes do Pet", scaffoldKey: _scaffoldKey),
-      drawer: const MenuDrawer(),
+      drawer:  MenuDrawer(),
       body: SingleChildScrollView(
         padding: const EdgeInsets.only(left: 16.0, right: 16.0, top: 16.0),
         child: Column(

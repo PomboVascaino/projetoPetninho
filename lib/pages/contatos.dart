@@ -27,9 +27,10 @@ class _PaginaContatoState extends State<PaginaContato> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       key: _scaffoldKey,
       appBar: AppHeader(title: "Fale Conosco", scaffoldKey: _scaffoldKey),
-      drawer: const MenuDrawer(),
+      drawer:  MenuDrawer(),
       body: const ConteudoContato(),
       extendBody: true,
       bottomNavigationBar: BottomMenu(
@@ -52,7 +53,8 @@ class _PaginaContatoState extends State<PaginaContato> {
             case 3: // Favoritos
               Navigator.pushReplacement(
                 context,
-                MaterialPageRoute(builder: (context) => const FavoritosPage()),
+                // ✅ CORREÇÃO APLICADA AQUI: 'const' foi removido
+                MaterialPageRoute(builder: (context) => FavoritosPage(allPets: [],)),
               );
               break;
           }

@@ -152,7 +152,7 @@ class _ChatPageState extends State<ChatPage> {
       backgroundColor: Colors.white,
       key: _scaffoldKey,
       appBar: AppHeader(title: "Bidu Assistente", scaffoldKey: _scaffoldKey),
-      drawer: const MenuDrawer(currentRoute: AppRoutes.chat),
+      drawer:  MenuDrawer(currentRoute: AppRoutes.chat),
       body: Column(
         children: [
           Expanded(
